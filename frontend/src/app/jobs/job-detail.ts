@@ -6,10 +6,11 @@ import { Meta, Title } from '@angular/platform-browser';
 import { AuthService } from '../core/auth.service';
 import { I18nService } from '../core/i18n.service';
 import { Envelope, JobDetail } from '../core/models';
+import { AdSlotComponent } from '../ads/ad-slot';
 
 @Component({
   selector: 'app-job-detail',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AdSlotComponent],
   templateUrl: './job-detail.html',
 })
 export class JobDetailPage {

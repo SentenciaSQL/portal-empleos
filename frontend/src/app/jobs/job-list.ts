@@ -5,11 +5,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Title } from '@angular/platform-browser';
 import { Envelope, JobCard, Named, Page } from '../core/models';
 import { JobCardView } from '../shared/job-card';
+import { AdSlotComponent } from '../ads/ad-slot';
 import { I18nService } from '../core/i18n.service';
 
 @Component({
   selector: 'app-job-list',
-  imports: [ReactiveFormsModule, JobCardView],
+  imports: [ReactiveFormsModule, JobCardView, AdSlotComponent],
   templateUrl: './job-list.html',
 })
 export class JobListPage {
@@ -24,6 +25,7 @@ export class JobListPage {
   readonly result = signal<Page<JobCard> | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly categoryId = signal('');
   readonly form = this.fb.nonNullable.group({
     q: '', provinceId: '', municipalityId: '', categoryId: '', contractType: '', workMode: '', workSchedule: '',
     experienceLevel: '', salaryMin: '', salaryMax: '', publishedWithinDays: '', acceptsNoExperience: false, sort: 'recent',
@@ -50,6 +52,7 @@ export class JobListPage {
         acceptsNoExperience: params.get('acceptsNoExperience') === 'true',
         sort: params.get('sort') ?? 'recent',
       }, { emitEvent: false });
+      this.categoryId.set(params.get('categoryId') ?? '');
       if (this.form.controls.provinceId.value) this.loadMunicipalities(this.form.controls.provinceId.value);
       this.load(Number(params.get('page') ?? 0));
     });

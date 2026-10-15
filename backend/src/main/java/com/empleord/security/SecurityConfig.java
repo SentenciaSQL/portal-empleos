@@ -48,7 +48,9 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, ex) -> write(response, 403, "No tienes permiso para esta acción.")))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/api/auth/logout", "/api/auth/verify-email", "/api/auth/resend-verification", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
-                        .requestMatchers("/api/catalog/**", "/api/health", "/sitemap.xml", "/robots.txt", "/public/**").permitAll()
+                        .requestMatchers("/api/catalog/**", "/api/health", "/sitemap.xml", "/robots.txt", "/ads.txt", "/public/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ads/config").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/ads/impressions").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/*", "/api/companies/*", "/api/media/**", "/api/files/resumes").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/jobs/*/reports", "/api/payments/paypal/webhook").permitAll()

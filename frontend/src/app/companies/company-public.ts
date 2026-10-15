@@ -3,11 +3,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Meta, Title } from '@angular/platform-browser';
 import { I18nService } from '../core/i18n.service';
+import { AdSlotComponent } from '../ads/ad-slot';
 import { Envelope } from '../core/models';
 
 @Component({
   selector: 'app-company-public',
-  imports: [RouterLink],
+  imports: [RouterLink, AdSlotComponent],
   template: `
     @if (company(); as item) {
       <article class="wrap max-w-3xl py-10">
@@ -18,6 +19,7 @@ import { Envelope } from '../core/models';
         <p class="mt-3 text-sm">{{ item.industry }} · {{ item.municipality }} {{ item.province }}</p>
         @if (item.website) { <p class="mt-2"><a [href]="item.website" target="_blank" rel="noopener">{{ item.website }}</a></p> }
         <a class="btn btn-primary mt-6" routerLink="/empleos">{{ i18n.t('Ver empleos') }}</a>
+        <app-ad-slot slotKey="info-content" />
       </article>
     }
   `,

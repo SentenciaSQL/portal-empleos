@@ -1,5 +1,6 @@
 package com.empleord.config;
 
+import com.empleord.ads.AdIds;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +33,20 @@ public class ProductionGuard {
                 throw new IllegalStateException("En producción PAYPAL_MODE debe ser live.");
             }
         }
+        AppProperties.Adsense adsense = properties.getAdsense();
+        if (adsense.isEnabled() && !adsense.getPublisherId().isBlank() && !AdIds.publisher(adsense.getPublisherId())) {
+            throw new IllegalStateException("ADSENSE_PUBLISHER_ID debe tener el formato ca-pub- seguido de 16 dígitos.");
+        }
+        if (!validSlot(adsense.getSlots().getHomeTop()) || !validSlot(adsense.getSlots().getHomeFeed())
+                || !validSlot(adsense.getSlots().getJobSearchInline()) || !validSlot(adsense.getSlots().getJobDetailBottom())
+                || !validSlot(adsense.getSlots().getCategoryContent()) || !validSlot(adsense.getSlots().getInfoContent())
+                || !validSlot(adsense.getSlots().getResourceContent())) {
+            throw new IllegalStateException("Un ADSENSE_SLOT_* definido debe ser el identificador numérico del bloque.");
+        }
+    }
+
+    private boolean validSlot(String value) {
+        return value == null || value.isBlank() || AdIds.unit(value);
     }
 
     private boolean blank(String value) {

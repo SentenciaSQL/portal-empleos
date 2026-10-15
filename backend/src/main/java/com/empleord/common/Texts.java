@@ -155,7 +155,10 @@ public final class Texts {
             Map.entry("Volviste al plan gratuito.", "You are back on the free plan."),
             Map.entry("Se canceló la contratación pendiente. Sigues en el plan gratuito.", "The pending purchase was cancelled. You remain on the free plan."),
             Map.entry("No se puede cancelar en PayPal porque la pasarela no está configurada.", "PayPal cannot cancel the subscription because the gateway is not configured."),
-            Map.entry("La suscripción quedó registrada. El plan se activará cuando PayPal confirme el pago.", "The subscription was registered. The plan activates when PayPal confirms the payment.")
+            Map.entry("La suscripción quedó registrada. El plan se activará cuando PayPal confirme el pago.", "The subscription was registered. The plan activates when PayPal confirms the payment."),
+            Map.entry("La configuración de publicidad no existe.", "The advertising configuration does not exist."),
+            Map.entry("El identificador de editor no es válido.", "That publisher ID is not valid."),
+            Map.entry("El identificador del bloque no es válido.", "That ad unit ID is not valid.")
     );
 
     private Texts() {
