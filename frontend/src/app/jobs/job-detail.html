@@ -1,0 +1,60 @@
+@if (error() && !job()) { <p class="wrap alert mt-8" role="alert">{{ error() }}</p> }
+@if (job(); as detail) {
+  <article class="wrap grid gap-6 py-8 lg:grid-cols-[1fr_320px]">
+    <div>
+      @if (!detail.card.open) { <p class="alert mb-4">Esta oferta ya no acepta postulaciones.</p> }
+      <p class="text-sm text-muted">{{ detail.card.category }} · Publicada {{ formatDate(detail.card.publishedAt) || 'sin fecha' }}</p>
+      <h1 class="mt-2 text-4xl">{{ detail.card.title }}</h1>
+      <p class="mt-2 text-lg"><a [routerLink]="['/empresas', detail.card.companySlug]">{{ detail.card.companyName }}</a>
+        @if (detail.card.companyVerified) { <span class="chip ml-2">Verificada</span> }
+        @if (!detail.card.companyVerified) { <span class="chip ml-2">Empresa sin verificar</span> }
+      </p>
+      <p class="mt-3">{{ locationText(detail.card) }} · {{ label(detail.card.workMode) }} · {{ label(detail.card.contractType) }} · {{ label(detail.card.workSchedule) }}</p>
+      <p class="mt-1 font-semibold">{{ salaryText(detail.card) }}</p>
+      @if (detail.card.geographicRestriction) { <p class="mt-2 text-sm">Restricción indicada por la empresa: {{ detail.card.geographicRestriction }}</p> }
+      <p class="mt-2 text-sm text-muted">País del empleo: {{ detail.card.countryName }} · {{ label(detail.card.remoteScope) }} · Experiencia: {{ label(detail.card.experienceLevel) }}</p>
+      <h2 class="mt-8 text-2xl">Descripción</h2>
+      <p class="mt-2 whitespace-pre-line leading-7">{{ detail.description }}</p>
+      @if (detail.responsibilities) { <h2 class="mt-6 text-2xl">Responsabilidades</h2><p class="mt-2 whitespace-pre-line leading-7">{{ detail.responsibilities }}</p> }
+      @if (detail.requirements) { <h2 class="mt-6 text-2xl">Requisitos</h2><p class="mt-2 whitespace-pre-line leading-7">{{ detail.requirements }}</p> }
+      @if (detail.skills.length) { <h2 class="mt-6 text-2xl">Habilidades</h2><div class="mt-2 flex flex-wrap gap-2">@for (skill of detail.skills; track skill) { <span class="chip">{{ skill }}</span> }</div> }
+      <p class="mt-6 text-sm text-muted">{{ detail.viewCount }} visualizaciones</p>
+    </div>
+    <aside class="grid h-fit gap-4">
+      @if (message()) { <p class="ok" role="status">{{ message() }}</p> }
+      @if (error()) { <p class="alert" role="alert">{{ error() }}</p> }
+      @if (detail.card.open && auth.user()?.role === 'CANDIDATE' && !detail.applied) {
+        <form class="card grid gap-3 p-4" [formGroup]="applyForm" (ngSubmit)="apply()">
+          <h2 class="text-xl">Postularme</h2>
+          <label class="field"><span>Currículum PDF</span>
+            <select formControlName="resumeId"><option value="">Usar el principal</option>@for (resume of resumes(); track resume.id) { <option [value]="resume.id">{{ resume.filename }}</option> }</select>
+          </label>
+          <label class="field"><span>Carta de presentación (opcional)</span><textarea rows="4" formControlName="coverLetter"></textarea></label>
+          <button class="btn btn-primary" type="submit">Enviar postulación</button>
+        </form>
+      } @else if (detail.applied) {
+        <p class="ok">Ya enviaste tu postulación. Puedes seguirla en tu panel.</p>
+      } @else if (!auth.user() && detail.card.open) {
+        <a class="btn btn-primary" [routerLink]="['/entrar']" [queryParams]="{ returnUrl: '/empleos/' + detail.card.slug }">Entra para postularte</a>
+      }
+      @if (auth.user()?.role === 'CANDIDATE') {
+        <button class="btn btn-ghost" type="button" (click)="save()">{{ detail.saved ? 'Quitar de guardadas' : 'Guardar oferta' }}</button>
+      }
+      <div class="card grid gap-2 p-4 text-sm">
+        <p class="font-bold">Compartir</p>
+        <a [href]="share('whatsapp')" target="_blank" rel="noopener">WhatsApp</a>
+        <a [href]="share('facebook')" target="_blank" rel="noopener">Facebook</a>
+        <a [href]="share('linkedin')" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+      <form class="card grid gap-3 p-4" [formGroup]="reportForm" (ngSubmit)="report()">
+        <h2 class="text-lg">Reportar esta oferta</h2>
+        <label class="field"><span>Motivo</span>
+          <select formControlName="reason"><option>Contenido sospechoso</option><option>Posible fraude</option><option>Información engañosa</option><option>Discriminación</option><option>Otro</option></select>
+        </label>
+        <label class="field"><span>Detalle</span><textarea rows="3" formControlName="details"></textarea></label>
+        @if (!auth.user()) { <label class="field"><span>Correo de contacto</span><input type="email" formControlName="email"></label> }
+        <button class="btn btn-ghost" type="submit">Enviar reporte</button>
+      </form>
+    </aside>
+  </article>
+}

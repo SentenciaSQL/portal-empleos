@@ -1,0 +1,42 @@
+<a class="sr-only" href="#contenido">Saltar al contenido</a>
+<header class="border-b border-line bg-navy text-white">
+  <div class="wrap flex items-center justify-between gap-4 py-3">
+    <a routerLink="/" class="font-serif text-2xl tracking-tight" (click)="closeMenu()">EmpleoRD</a>
+    <button class="btn btn-ghost border-white/30 text-white md:hidden" type="button" [attr.aria-expanded]="menuOpen()" (click)="menuOpen.set(!menuOpen())">Menú</button>
+    <nav class="hidden items-center gap-5 md:flex" aria-label="Principal">
+      <a routerLink="/empleos" routerLinkActive="underline">Empleos</a>
+      <a routerLink="/empresa/ofertas/nueva">Publicar empleo</a>
+      @if (user(); as session) {
+        <a routerLink="/notificaciones">Avisos</a>
+        <a [routerLink]="panelLink()">{{ session.firstName }}</a>
+        <button class="btn btn-primary" type="button" (click)="logout()">Salir</button>
+      } @else {
+        <a routerLink="/entrar">Entrar</a>
+        <a class="btn btn-primary" routerLink="/registro">Crear cuenta</a>
+      }
+    </nav>
+  </div>
+  @if (menuOpen()) {
+    <nav class="wrap grid gap-3 pb-4 md:hidden" aria-label="Móvil">
+      <a routerLink="/empleos" (click)="closeMenu()">Empleos</a>
+      <a routerLink="/empresa/ofertas/nueva" (click)="closeMenu()">Publicar empleo</a>
+      @if (user(); as session) {
+        <a routerLink="/notificaciones" (click)="closeMenu()">Avisos</a>
+        <a [routerLink]="panelLink()" (click)="closeMenu()">Mi panel</a>
+        <button class="btn btn-primary w-fit" type="button" (click)="logout()">Salir</button>
+      } @else {
+        <a routerLink="/entrar" (click)="closeMenu()">Entrar</a>
+        <a routerLink="/registro" (click)="closeMenu()">Crear cuenta</a>
+      }
+    </nav>
+  }
+</header>
+<main id="contenido">
+  <router-outlet />
+</main>
+<footer class="mt-16 border-t border-line">
+  <div class="wrap flex flex-col gap-3 py-8 text-sm text-muted sm:flex-row sm:justify-between">
+    <p>EmpleoRD conecta empresas y personas en República Dominicana. Las cuentas de demostración no representan empleadores reales.</p>
+    <a routerLink="/privacidad">Privacidad y datos personales</a>
+  </div>
+</footer>

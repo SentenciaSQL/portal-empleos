@@ -1,0 +1,17 @@
+.git/
+.github/
+.idea/
+.vscode/
+**/.npmrc
+.env
+.env.*
+*.pem
+*.key
+
+**/*.md
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+backend/target/
+backend/data/
+data/
