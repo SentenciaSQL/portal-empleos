@@ -4,6 +4,7 @@ import com.empleord.common.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -39,8 +40,8 @@ public class CatalogController {
     }
 
     @GetMapping("/skills")
-    public ApiResponse<List<CatalogDtos.SkillItem>> skills() {
-        return ApiResponse.ok(catalog.skills());
+    public ApiResponse<List<CatalogDtos.SkillItem>> skills(@RequestParam(required = false) String q) {
+        return ApiResponse.ok(catalog.skills(q));
     }
 
     @GetMapping("/plans")

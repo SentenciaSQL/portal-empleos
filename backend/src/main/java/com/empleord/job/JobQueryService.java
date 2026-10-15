@@ -16,6 +16,10 @@ import com.empleord.domain.repository.JobRepository;
 import com.empleord.domain.repository.SavedJobRepository;
 import com.empleord.security.SecurityUtils;
 import com.empleord.security.UserPrincipal;
+import com.empleord.domain.entity.Skill;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -32,6 +36,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class JobQueryService {
@@ -57,12 +62,14 @@ public class JobQueryService {
     public PageResponse<JobDtos.JobCard> search(String q, Integer provinceId, Integer municipalityId, Integer categoryId,
                                                 ContractType contractType, WorkMode workMode, WorkSchedule workSchedule,
                                                 ExperienceLevel experienceLevel, BigDecimal salaryMin, BigDecimal salaryMax,
-                                                Integer publishedWithinDays, Boolean acceptsNoExperience, String sort, int page, int size) {
+                                                Integer publishedWithinDays, Boolean acceptsNoExperience, String skillIds,
+                                                String skillMatch, String sort, int page, int size) {
         Instant now = Instant.now();
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 50);
         Page<Job> result = jobs.findAll(openJobs(q, provinceId, municipalityId, categoryId, contractType, workMode, workSchedule,
-                experienceLevel, salaryMin, salaryMax, publishedWithinDays, acceptsNoExperience, null, sort, now), PageRequest.of(safePage, safeSize));
+                experienceLevel, salaryMin, salaryMax, publishedWithinDays, acceptsNoExperience, null,
+                parseSkillIds(skillIds), skillMatchMode(skillMatch), sort, now), PageRequest.of(safePage, safeSize));
         return toCards(result, now);
     }
 
@@ -72,7 +79,7 @@ public class JobQueryService {
                                            Instant publishedAfter, int limit) {
         Instant now = Instant.now();
         return jobs.findAll(openJobs(q, provinceId, municipalityId, categoryId, contractType, workMode, null, null,
-                salaryMin, salaryMax, null, null, publishedAfter, "recent", now), PageRequest.of(0, Math.min(Math.max(limit, 1), 20))).getContent();
+                salaryMin, salaryMax, null, null, publishedAfter, List.of(), "ANY", "recent", now), PageRequest.of(0, Math.min(Math.max(limit, 1), 20))).getContent();
     }
 
     private PageResponse<JobDtos.JobCard> toCards(Page<Job> result, Instant now) {
@@ -88,7 +95,7 @@ public class JobQueryService {
                                         ContractType contractType, WorkMode workMode, WorkSchedule workSchedule,
                                         ExperienceLevel experienceLevel, BigDecimal salaryMin, BigDecimal salaryMax,
                                         Integer publishedWithinDays, Boolean acceptsNoExperience, Instant publishedAfter,
-                                        String sort, Instant now) {
+                                        List<Integer> skillIds, String skillMatch, String sort, Instant now) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("status"), JobStatus.PUBLISHED));
@@ -143,6 +150,7 @@ public class JobQueryService {
                         cb.isNull(root.get("salaryMin")),
                         cb.lessThanOrEqualTo(root.get("salaryMin"), salaryMax)));
             }
+            addSkillFilter(root, query, cb, predicates, skillIds, skillMatch);
             if (query.getResultType() != Long.class && query.getResultType() != long.class) {
                 if ("salary".equals(sort)) {
                     query.orderBy(cb.desc(root.get("salaryMax")), cb.desc(root.get("publishedAt")));
@@ -159,6 +167,69 @@ public class JobQueryService {
             }
             return cb.and(predicates.toArray(Predicate[]::new));
         };
+    }
+
+    private void addSkillFilter(Root<Job> root, CriteriaQuery<?> query, CriteriaBuilder cb,
+                                List<Predicate> predicates, List<Integer> skillIds, String skillMatch) {
+        if (skillIds == null || skillIds.isEmpty()) {
+            return;
+        }
+        if ("ALL".equals(skillMatch)) {
+            for (Integer skillId : skillIds) {
+                predicates.add(skillExists(root, query, cb, skillId, null));
+            }
+            return;
+        }
+        predicates.add(skillExists(root, query, cb, null, skillIds));
+    }
+
+    private Predicate skillExists(Root<Job> root, CriteriaQuery<?> query, CriteriaBuilder cb,
+                                  Integer skillId, List<Integer> anyOf) {
+        Subquery<Integer> subquery = query.subquery(Integer.class);
+        Root<Job> matched = subquery.from(Job.class);
+        Join<Job, Skill> skill = matched.join("skills");
+        subquery.select(cb.literal(1));
+        Predicate sameJob = cb.equal(matched.get("id"), root.get("id"));
+        Predicate skillMatch = skillId != null ? cb.equal(skill.get("id"), skillId) : skill.get("id").in(anyOf);
+        subquery.where(sameJob, skillMatch);
+        return cb.exists(subquery);
+    }
+
+    private List<Integer> parseSkillIds(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return List.of();
+        }
+        List<Integer> ids = new ArrayList<>();
+        for (String part : raw.split(",")) {
+            String token = part.trim();
+            if (token.isEmpty()) {
+                continue;
+            }
+            try {
+                int id = Integer.parseInt(token);
+                if (id <= 0 || ids.contains(id)) {
+                    continue;
+                }
+                ids.add(id);
+            } catch (NumberFormatException ex) {
+                throw ApiException.badRequest("Las habilidades del filtro no son válidas.");
+            }
+        }
+        if (ids.size() > 30) {
+            throw ApiException.badRequest("Puedes filtrar hasta 30 habilidades.");
+        }
+        return ids;
+    }
+
+    private String skillMatchMode(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "ANY";
+        }
+        String mode = raw.trim().toUpperCase(Locale.ROOT);
+        if (!mode.equals("ANY") && !mode.equals("ALL")) {
+            throw ApiException.badRequest("La coincidencia de habilidades no es válida.");
+        }
+        return mode;
     }
 
     @Transactional(readOnly = true)

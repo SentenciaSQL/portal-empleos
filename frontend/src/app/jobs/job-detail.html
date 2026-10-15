@@ -17,7 +17,7 @@
       <app-rich-text-view class="mt-2" [value]="detail.description" />
       @if (text(detail.responsibilities)) { <h2 class="mt-6 text-2xl">{{ i18n.t('Responsabilidades') }}</h2><app-rich-text-view class="mt-2" [value]="detail.responsibilities" /> }
       @if (text(detail.requirements)) { <h2 class="mt-6 text-2xl">{{ i18n.t('Requisitos') }}</h2><app-rich-text-view class="mt-2" [value]="detail.requirements" /> }
-      @if (detail.skills.length) { <h2 class="mt-6 text-2xl">{{ i18n.t('Habilidades') }}</h2><div class="mt-2 flex flex-wrap gap-2">@for (skill of detail.skills; track skill) { <span class="chip">{{ skill }}</span> }</div> }
+      @if (detail.skills.length) { <h2 class="mt-6 text-2xl">{{ i18n.t('Habilidades requeridas') }}</h2><div class="mt-2 flex flex-wrap gap-2">@for (skill of detail.skills; track skill) { <span class="chip">{{ skill }}</span> }</div> }
       <p class="mt-6 text-sm text-muted">{{ detail.viewCount }} {{ i18n.t('visualizaciones') }}</p>
       <app-ad-slot slotKey="job-detail-bottom" />
     </div>
