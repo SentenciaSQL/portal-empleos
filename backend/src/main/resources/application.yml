@@ -9,8 +9,8 @@ spring:
     name: empleord-api
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/empleord}
-    username: ${DATABASE_USER:empleord}
-    password: ${DATABASE_PASSWORD:empleord}
+    username: ${DATABASE_USER:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
   jpa:
     open-in-view: false
     hibernate:
