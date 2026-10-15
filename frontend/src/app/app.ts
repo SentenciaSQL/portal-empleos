@@ -2,10 +2,11 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
 import { I18nService } from './core/i18n.service';
+import { AdConsentBanner } from './ads/ad-consent-banner';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AdConsentBanner],
   templateUrl: './app.html',
 })
 export class App {

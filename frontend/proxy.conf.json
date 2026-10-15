@@ -14,6 +14,11 @@
     "secure": false,
     "changeOrigin": false
   },
+  "/ads.txt": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": false
+  },
   "/public": {
     "target": "http://localhost:8080",
     "secure": false,

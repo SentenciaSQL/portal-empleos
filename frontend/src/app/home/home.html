@@ -24,6 +24,7 @@
       <a class="chip hover:bg-navy hover:text-white" [routerLink]="['/empleos']" [queryParams]="{ categoryId: category.id }">{{ category.name }}</a>
     }
   </div>
+  <app-ad-slot slotKey="home-top" />
 </section>
 <section class="wrap pb-4">
   <div class="mb-4 flex items-end justify-between gap-4">
@@ -41,6 +42,7 @@
       @for (job of jobs(); track job.id) { <app-job-card [job]="job" /> }
     </div>
   }
+  <app-ad-slot slotKey="home-feed" />
 </section>
 <section class="wrap grid gap-4 py-10 md:grid-cols-3">
   <article class="card p-5"><h3 class="text-xl">{{ i18n.t('1. Busca sin cuenta') }}</h3><p class="mt-2 text-muted">{{ i18n.t('Filtra por provincia, contrato, jornada y salario indicado por la empresa.') }}</p></article>

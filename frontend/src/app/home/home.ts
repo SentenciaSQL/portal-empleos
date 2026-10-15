@@ -5,10 +5,11 @@ import { HttpClient } from '@angular/common/http';
 import { Envelope, JobCard, Named, Page } from '../core/models';
 import { I18nService } from '../core/i18n.service';
 import { JobCardView } from '../shared/job-card';
+import { AdSlotComponent } from '../ads/ad-slot';
 
 @Component({
   selector: 'app-home',
-  imports: [ReactiveFormsModule, RouterLink, JobCardView],
+  imports: [ReactiveFormsModule, RouterLink, JobCardView, AdSlotComponent],
   templateUrl: './home.html',
 })
 export class HomePage {

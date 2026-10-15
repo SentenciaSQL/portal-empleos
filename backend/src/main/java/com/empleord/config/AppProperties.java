@@ -22,6 +22,7 @@ public class AppProperties {
     private int jobDefaultDays = 30;
     private boolean production;
     private Paypal paypal = new Paypal();
+    private Adsense adsense = new Adsense();
 
     public List<String> corsOriginList() {
         return Arrays.stream(corsOrigins.split(",")).map(String::trim).filter(value -> !value.isEmpty()).toList();
@@ -58,5 +59,25 @@ public class AppProperties {
         private String clientId = "";
         private String clientSecret = "";
         private String webhookId = "";
+    }
+
+    @Getter
+    @Setter
+    public static class Adsense {
+        private boolean enabled;
+        private String publisherId = "";
+        private Slots slots = new Slots();
+
+        @Getter
+        @Setter
+        public static class Slots {
+            private String homeTop = "";
+            private String homeFeed = "";
+            private String jobSearchInline = "";
+            private String jobDetailBottom = "";
+            private String categoryContent = "";
+            private String infoContent = "";
+            private String resourceContent = "";
+        }
     }
 }
