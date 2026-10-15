@@ -44,4 +44,29 @@
   .ad-slot { margin: 1.25rem 0; padding: .75rem .9rem 1rem; border: 1px dashed #c8bba8; border-radius: 1rem; background: #f6f1e8; }
   .ad-label { margin: 0 0 .45rem; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-muted); }
   .ad-frame { min-height: 120px; overflow: hidden; }
+  .rich-text { display: grid; gap: .35rem; }
+  .rich-toolbar { display: flex; flex-wrap: wrap; gap: .25rem; }
+  .rich-btn { min-width: 2.25rem; min-height: 2.25rem; padding: 0 .45rem; border: 1px solid var(--color-line); background: white; border-radius: .55rem; color: var(--color-ink); font: inherit; font-weight: 700; line-height: 1; cursor: pointer; }
+  .rich-btn[aria-pressed='true'] { background: #efe7dc; border-color: #c8bba8; }
+  .rich-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .rich-sample-u { text-decoration: underline; }
+  .rich-link { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+  .rich-link input { flex: 1 1 12rem; min-width: 0; border: 1px solid var(--color-line); background: white; border-radius: .6rem; padding: .45rem .65rem; color: var(--color-ink); font: inherit; }
+  .rich-surface { border: 1px solid var(--color-line); background: white; border-radius: .7rem; }
+  .rich-surface:focus-within { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+  .rich-text-invalid .rich-surface { border-color: var(--color-danger); }
+  .rich-editor { min-height: 6.5rem; padding: .7rem .8rem; overflow-wrap: anywhere; }
+  .rich-editor-tall .rich-editor { min-height: 9rem; }
+  .rich-editor p.is-empty::before { color: var(--color-muted); content: attr(data-placeholder); float: left; height: 0; pointer-events: none; }
+  .rich-hint { margin: 0; color: var(--color-muted); font-size: .82rem; }
+  .field-error { margin: 0; color: var(--color-danger); font-size: .82rem; font-weight: 700; }
+  .job-html { overflow-wrap: anywhere; line-height: 1.7; }
+  .job-html p, .rich-editor p { margin: .45rem 0; }
+  .job-html p:first-child, .rich-editor p:first-child { margin-top: 0; }
+  .job-html p:last-child, .rich-editor p:last-child { margin-bottom: 0; }
+  .job-html ul, .job-html ol, .rich-editor ul, .rich-editor ol { margin: .55rem 0 .55rem 1.25rem; padding: 0; }
+  .job-html ul, .rich-editor ul { list-style: disc; }
+  .job-html ol, .rich-editor ol { list-style: decimal; }
+  .job-html li, .rich-editor li { margin: .2rem 0; }
+  .job-html a, .rich-editor a { color: var(--color-accent); text-decoration: underline; }
 }

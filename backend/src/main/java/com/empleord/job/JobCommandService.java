@@ -4,6 +4,7 @@ import com.empleord.audit.AuditService;
 import com.empleord.billing.PlanService;
 import com.empleord.catalog.CatalogService;
 import com.empleord.common.ApiException;
+import com.empleord.common.HtmlSanitizer;
 import com.empleord.common.Text;
 import com.empleord.company.CompanyAccess;
 import com.empleord.config.AppProperties;
@@ -141,9 +142,9 @@ public class JobCommandService {
             throw ApiException.badRequest("El salario no puede ser negativo.");
         }
         job.setTitle(Text.required(request.title(), "El cargo"));
-        job.setDescription(Text.required(request.description(), "La descripción"));
-        job.setRequirements(Text.clean(request.requirements()));
-        job.setResponsibilities(Text.clean(request.responsibilities()));
+        job.setDescription(HtmlSanitizer.required(request.description(), "La descripción"));
+        job.setRequirements(HtmlSanitizer.clean(request.requirements()));
+        job.setResponsibilities(HtmlSanitizer.clean(request.responsibilities()));
         job.setCategory(catalog.category(request.categoryId()));
         job.setContractType(request.contractType());
         job.setWorkMode(request.workMode());
