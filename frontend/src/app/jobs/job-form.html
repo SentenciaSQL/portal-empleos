@@ -4,9 +4,18 @@
   <p class="text-muted">{{ i18n.t('Escribe el salario solo si la empresa lo va a mostrar. No completes cifras estimadas.') }}</p>
   @if (error()) { <p class="alert" role="alert">{{ i18n.live(error()) }}</p> }
   <label class="field"><span>{{ i18n.t('Cargo') }}</span><input formControlName="title"></label>
-  <label class="field"><span>{{ i18n.t('Descripción') }}</span><textarea rows="5" formControlName="description"></textarea></label>
-  <label class="field"><span>{{ i18n.t('Responsabilidades') }}</span><textarea rows="4" formControlName="responsibilities"></textarea></label>
-  <label class="field"><span>{{ i18n.t('Requisitos') }}</span><textarea rows="4" formControlName="requirements"></textarea></label>
+  <div class="field">
+    <span id="job-description-label">{{ i18n.t('Descripción') }}</span>
+    <app-rich-text formControlName="description" labelledBy="job-description-label" tall required [placeholder]="i18n.t('Describe el puesto, el equipo y lo que ofrece la empresa.')" [hint]="i18n.t('Puedes usar negrita, listas y enlaces. Enter crea un párrafo.')" [requiredMessage]="i18n.t('Escribe la descripción de la oferta.')" />
+  </div>
+  <div class="field">
+    <span id="job-responsibilities-label">{{ i18n.t('Responsabilidades') }}</span>
+    <app-rich-text formControlName="responsibilities" labelledBy="job-responsibilities-label" [placeholder]="i18n.t('Indica las tareas principales del puesto.')" [hint]="i18n.t('Puedes usar viñetas para separar cada tarea. Enter crea un párrafo.')" />
+  </div>
+  <div class="field">
+    <span id="job-requirements-label">{{ i18n.t('Requisitos') }}</span>
+    <app-rich-text formControlName="requirements" labelledBy="job-requirements-label" [placeholder]="i18n.t('Indica la formación, la experiencia o las habilidades necesarias.')" [hint]="i18n.t('Puedes usar una lista numerada. Enter crea un párrafo.')" />
+  </div>
   <label class="field"><span>{{ i18n.t('Categoría') }}</span><select formControlName="categoryId"><option value="">{{ i18n.t('Selecciona') }}</option>@for (item of categories(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }</select></label>
   <div class="grid gap-3 sm:grid-cols-2">
     <label class="field"><span>{{ i18n.t('Contrato') }}</span><select formControlName="contractType"><option value="INDEFINITE">{{ i18n.label('INDEFINITE') }}</option><option value="TEMPORARY">{{ i18n.label('TEMPORARY') }}</option><option value="PROJECT">{{ i18n.label('PROJECT') }}</option><option value="INTERNSHIP">{{ i18n.label('INTERNSHIP') }}</option><option value="FREELANCE">{{ i18n.label('FREELANCE') }}</option></select></label>

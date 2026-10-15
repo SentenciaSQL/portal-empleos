@@ -14,9 +14,9 @@
       @if (detail.card.geographicRestriction) { <p class="mt-2 text-sm">{{ i18n.t('Restricción indicada por la empresa:') }} {{ detail.card.geographicRestriction }}</p> }
       <p class="mt-2 text-sm text-muted">{{ i18n.t('País del empleo:') }} {{ detail.card.countryName }} · {{ i18n.label(detail.card.remoteScope) }} · {{ i18n.t('Experiencia:') }} {{ i18n.label(detail.card.experienceLevel) }}</p>
       <h2 class="mt-8 text-2xl">{{ i18n.t('Descripción') }}</h2>
-      <p class="mt-2 whitespace-pre-line leading-7">{{ detail.description }}</p>
-      @if (detail.responsibilities) { <h2 class="mt-6 text-2xl">{{ i18n.t('Responsabilidades') }}</h2><p class="mt-2 whitespace-pre-line leading-7">{{ detail.responsibilities }}</p> }
-      @if (detail.requirements) { <h2 class="mt-6 text-2xl">{{ i18n.t('Requisitos') }}</h2><p class="mt-2 whitespace-pre-line leading-7">{{ detail.requirements }}</p> }
+      <app-rich-text-view class="mt-2" [value]="detail.description" />
+      @if (text(detail.responsibilities)) { <h2 class="mt-6 text-2xl">{{ i18n.t('Responsabilidades') }}</h2><app-rich-text-view class="mt-2" [value]="detail.responsibilities" /> }
+      @if (text(detail.requirements)) { <h2 class="mt-6 text-2xl">{{ i18n.t('Requisitos') }}</h2><app-rich-text-view class="mt-2" [value]="detail.requirements" /> }
       @if (detail.skills.length) { <h2 class="mt-6 text-2xl">{{ i18n.t('Habilidades') }}</h2><div class="mt-2 flex flex-wrap gap-2">@for (skill of detail.skills; track skill) { <span class="chip">{{ skill }}</span> }</div> }
       <p class="mt-6 text-sm text-muted">{{ detail.viewCount }} {{ i18n.t('visualizaciones') }}</p>
       <app-ad-slot slotKey="job-detail-bottom" />

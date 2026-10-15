@@ -1,0 +1,28 @@
+<div class="rich-text" [class.rich-text-invalid]="showError()">
+  <div class="rich-toolbar" role="toolbar" [attr.aria-label]="i18n.t('Formato del texto')">
+    <button type="button" class="rich-btn" [attr.aria-pressed]="marks().bold" [attr.aria-label]="i18n.t('Negrita')" [title]="i18n.t('Negrita')" [disabled]="disabled()" (mousedown)="$event.preventDefault()" (click)="command('bold')"><span aria-hidden="true"><strong>B</strong></span></button>
+    <button type="button" class="rich-btn" [attr.aria-pressed]="marks().italic" [attr.aria-label]="i18n.t('Cursiva')" [title]="i18n.t('Cursiva')" [disabled]="disabled()" (mousedown)="$event.preventDefault()" (click)="command('italic')"><span aria-hidden="true"><em>I</em></span></button>
+    <button type="button" class="rich-btn" [attr.aria-pressed]="marks().underline" [attr.aria-label]="i18n.t('Subrayado')" [title]="i18n.t('Subrayado')" [disabled]="disabled()" (mousedown)="$event.preventDefault()" (click)="command('underline')"><span aria-hidden="true" class="rich-sample-u">U</span></button>
+    <button type="button" class="rich-btn" [attr.aria-pressed]="marks().bullet" [attr.aria-label]="i18n.t('Lista con viñetas')" [title]="i18n.t('Lista con viñetas')" [disabled]="disabled()" (mousedown)="$event.preventDefault()" (click)="command('bulletList')"><span aria-hidden="true">•</span></button>
+    <button type="button" class="rich-btn" [attr.aria-pressed]="marks().ordered" [attr.aria-label]="i18n.t('Lista numerada')" [title]="i18n.t('Lista numerada')" [disabled]="disabled()" (mousedown)="$event.preventDefault()" (click)="command('orderedList')"><span aria-hidden="true">1.</span></button>
+    <button type="button" class="rich-btn" [attr.aria-pressed]="marks().link || linkOpen()" [attr.aria-label]="i18n.t('Enlace')" [title]="i18n.t('Enlace')" [disabled]="disabled()" (mousedown)="$event.preventDefault()" (click)="toggleLink()"><span aria-hidden="true">↗</span></button>
+    <button type="button" class="rich-btn" [attr.aria-label]="i18n.t('Deshacer')" [title]="i18n.t('Deshacer')" [disabled]="disabled() || !history().undo" (mousedown)="$event.preventDefault()" (click)="command('undo')"><span aria-hidden="true">↺</span></button>
+    <button type="button" class="rich-btn" [attr.aria-label]="i18n.t('Rehacer')" [title]="i18n.t('Rehacer')" [disabled]="disabled() || !history().redo" (mousedown)="$event.preventDefault()" (click)="command('redo')"><span aria-hidden="true">↻</span></button>
+    <button type="button" class="rich-btn" [attr.aria-label]="i18n.t('Quitar formato')" [title]="i18n.t('Quitar formato')" [disabled]="disabled()" (mousedown)="$event.preventDefault()" (click)="command('clear')"><span aria-hidden="true">Tx</span></button>
+  </div>
+  @if (linkOpen()) {
+    <div class="rich-link" role="group" [attr.aria-label]="i18n.t('Enlace')">
+      <label class="sr-only" [attr.for]="linkInputId">{{ i18n.t('Dirección del enlace') }}</label>
+      <input [id]="linkInputId" type="url" autocomplete="off" [placeholder]="i18n.t('https://ejemplo.com')" [value]="linkDraft()" (input)="linkDraft.set($any($event.target).value)" (keydown.enter)="$event.preventDefault(); applyLink()">
+      <button type="button" class="btn btn-primary" (click)="applyLink()">{{ i18n.t('Aplicar enlace') }}</button>
+      <button type="button" class="btn btn-ghost" (click)="removeLink()">{{ i18n.t('Quitar enlace') }}</button>
+      <button type="button" class="btn btn-ghost" (click)="linkOpen.set(false)">{{ i18n.t('Cerrar') }}</button>
+    </div>
+    @if (linkError()) { <p class="field-error" role="alert">{{ linkError() }}</p> }
+  }
+  <div class="rich-surface" [class.rich-editor-tall]="tall()">
+    <div #surface></div>
+  </div>
+  @if (hint()) { <p class="rich-hint" [id]="hintId">{{ hint() }}</p> }
+  @if (showError()) { <p class="field-error" role="alert">{{ requiredMessage() }}</p> }
+</div>

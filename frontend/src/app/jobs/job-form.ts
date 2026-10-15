@@ -4,10 +4,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { I18nService } from '../core/i18n.service';
 import { Country, Envelope, Named } from '../core/models';
+import { RichTextEditor, richTextRequired } from './rich-text-editor';
 
 @Component({
   selector: 'app-job-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, RichTextEditor],
   templateUrl: './job-form.html',
 })
 export class JobFormPage {
@@ -23,7 +24,7 @@ export class JobFormPage {
   readonly i18n = inject(I18nService);
   readonly editing = signal(false);
   readonly form = inject(FormBuilder).nonNullable.group({
-    title: ['', Validators.required], description: ['', Validators.required], requirements: [''], responsibilities: [''],
+    title: ['', Validators.required], description: ['', richTextRequired], requirements: [''], responsibilities: [''],
     categoryId: ['', Validators.required], contractType: ['INDEFINITE', Validators.required], workMode: ['ONSITE', Validators.required],
     workSchedule: ['FULL_TIME', Validators.required], experienceLevel: ['NONE', Validators.required], provinceId: [''], municipalityId: [''],
     countryCode: ['DO'], locationLabel: [''], remoteScope: ['ONSITE_ONLY'], geographicRestriction: [''], salaryMin: [''], salaryMax: [''],
@@ -68,6 +69,10 @@ export class JobFormPage {
   }
 
   submit(): void {
+    if (this.form.controls.description.invalid) {
+      this.form.controls.description.markAsTouched();
+      return;
+    }
     const raw = this.form.getRawValue();
     const body = {
       ...raw,
