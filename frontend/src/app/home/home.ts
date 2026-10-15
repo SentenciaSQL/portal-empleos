@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Envelope, JobCard, Named, Page } from '../core/models';
+import { I18nService } from '../core/i18n.service';
 import { JobCardView } from '../shared/job-card';
 
 @Component({
@@ -14,6 +15,7 @@ export class HomePage {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  readonly i18n = inject(I18nService);
   readonly categories = signal<Named[]>([]);
   readonly provinces = signal<Named[]>([]);
   readonly jobs = signal<JobCard[]>([]);

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,5 +70,10 @@ public class AuthController {
     @GetMapping("/me")
     public ApiResponse<AuthDtos.UserResponse> me() {
         return ApiResponse.ok(auth.me());
+    }
+
+    @PatchMapping("/locale")
+    public ApiResponse<AuthDtos.UserResponse> locale(@Valid @RequestBody AuthDtos.LocaleRequest request) {
+        return ApiResponse.ok(auth.updateLocale(request.locale()));
     }
 }

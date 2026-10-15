@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Meta, Title } from '@angular/platform-browser';
 import { AuthService } from '../core/auth.service';
-import { apiError, formatDate, label, locationText, salaryText } from '../core/format';
+import { I18nService } from '../core/i18n.service';
 import { Envelope, JobDetail } from '../core/models';
 
 @Component({
@@ -18,14 +18,11 @@ export class JobDetailPage {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   readonly auth = inject(AuthService);
+  readonly i18n = inject(I18nService);
   readonly job = signal<JobDetail | null>(null);
   readonly resumes = signal<{ id: string; filename: string; primary: boolean }[]>([]);
   readonly message = signal<string | null>(null);
   readonly error = signal<string | null>(null);
-  readonly label = label;
-  readonly formatDate = formatDate;
-  readonly salaryText = salaryText;
-  readonly locationText = locationText;
   readonly reportForm = inject(FormBuilder).nonNullable.group({
     reason: ['Contenido sospechoso', Validators.required],
     details: [''],
@@ -53,7 +50,7 @@ export class JobDetailPage {
       : this.http.post<Envelope<unknown>>('/api/candidate/saved-jobs', { jobId: id });
     request.subscribe({
       next: () => this.load(this.job()!.card.slug),
-      error: (err) => this.error.set(apiError(err)),
+      error: (err) => this.error.set(this.i18n.apiError(err)),
     });
   }
 
@@ -65,8 +62,8 @@ export class JobDetailPage {
       resumeId: raw.resumeId || null,
       coverLetter: raw.coverLetter,
     }).subscribe({
-      next: () => { this.message.set('Postulación enviada.'); this.load(current.card.slug); },
-      error: (err) => this.error.set(apiError(err)),
+      next: () => { this.message.set(this.i18n.t('Postulación enviada.')); this.load(current.card.slug); },
+      error: (err) => this.error.set(this.i18n.apiError(err)),
     });
   }
 
@@ -76,7 +73,7 @@ export class JobDetailPage {
     const raw = this.reportForm.getRawValue();
     this.http.post<Envelope<unknown>>(`/api/jobs/${id}/reports`, { ...raw, email: raw.email || null }).subscribe({
       next: (res) => this.message.set(res.message),
-      error: (err) => this.error.set(apiError(err)),
+      error: (err) => this.error.set(this.i18n.apiError(err)),
     });
   }
 
@@ -96,7 +93,7 @@ export class JobDetailPage {
             .subscribe((profile) => this.resumes.set(profile.data.resumes));
         }
       },
-      error: (err) => this.error.set(apiError(err)),
+      error: (err) => this.error.set(this.i18n.apiError(err)),
     });
   }
 }

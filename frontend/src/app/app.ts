@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
+import { I18nService } from './core/i18n.service';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,7 @@ import { AuthService } from './core/auth.service';
 export class App {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  readonly i18n = inject(I18nService);
   readonly user = this.auth.user;
   readonly menuOpen = signal(false);
   readonly panelLink = computed(() => {
@@ -20,7 +22,11 @@ export class App {
   });
 
   constructor() {
-    void this.auth.ensure();
+    void this.auth.ensure().then(() => this.i18n.restore(this.auth.user()?.locale));
+  }
+
+  setLang(lang: 'es' | 'en'): void {
+    this.i18n.use(lang);
   }
 
   closeMenu(): void {

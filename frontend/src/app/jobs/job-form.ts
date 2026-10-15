@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { apiError } from '../core/format';
+import { I18nService } from '../core/i18n.service';
 import { Country, Envelope, Named } from '../core/models';
 
 @Component({
@@ -20,6 +20,7 @@ export class JobFormPage {
   readonly countries = signal<Country[]>([]);
   readonly skills = signal<Named[]>([]);
   readonly error = signal<string | null>(null);
+  readonly i18n = inject(I18nService);
   readonly editing = signal(false);
   readonly form = inject(FormBuilder).nonNullable.group({
     title: ['', Validators.required], description: ['', Validators.required], requirements: [''], responsibilities: [''],
@@ -84,7 +85,7 @@ export class JobFormPage {
       : this.http.post<Envelope<{ id: string }>>('/api/company/jobs', body);
     request.subscribe({
       next: () => void this.router.navigateByUrl('/empresa/ofertas'),
-      error: (err) => this.error.set(apiError(err)),
+      error: (err) => this.error.set(this.i18n.apiError(err)),
     });
   }
 

@@ -13,10 +13,13 @@ public record ApiResponse<T>(boolean success, T data, String message, List<Field
     }
 
     public static ApiResponse<Void> message(String message) {
-        return new ApiResponse<>(true, null, message, List.of(), Instant.now());
+        return new ApiResponse<>(true, null, Texts.of(message), List.of(), Instant.now());
     }
 
     public static ApiResponse<Void> error(String message, List<FieldError> errors) {
-        return new ApiResponse<>(false, null, message, errors == null ? List.of() : errors, Instant.now());
+        List<FieldError> translated = errors == null ? List.of() : errors.stream()
+                .map(error -> new FieldError(error.field(), Texts.of(error.message())))
+                .toList();
+        return new ApiResponse<>(false, null, Texts.of(message), translated, Instant.now());
     }
 }

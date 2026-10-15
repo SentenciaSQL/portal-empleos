@@ -226,14 +226,23 @@ public class AuthService {
             user.setStatus(UserStatus.ACTIVE);
         }
         refreshTokens.revokeActiveForUser(user.getId());
-        email.sendPlain(user.getEmail(), "Tu contraseña de EmpleoRD fue actualizada",
-                "Hola " + user.getFirstName() + ",\n\nLa contraseña de tu cuenta fue actualizada. Si no fuiste tú, escribe a soporte de inmediato.");
+        email.sendPasswordChanged(user);
     }
 
     @Transactional(readOnly = true)
     public AuthDtos.UserResponse me() {
         UserPrincipal principal = SecurityUtils.requireUser();
         User user = users.findActiveById(principal.getId()).orElseThrow(() -> ApiException.unauthorized("Debes iniciar sesión."));
+        return toUser(user);
+    }
+
+    @Transactional
+    public AuthDtos.UserResponse updateLocale(String locale) {
+        if (!"es".equals(locale) && !"en".equals(locale)) {
+            throw ApiException.badRequest("El idioma de la interfaz no es válido.");
+        }
+        User user = users.findActiveById(SecurityUtils.requireUser().getId()).orElseThrow(() -> ApiException.unauthorized("Debes iniciar sesión."));
+        user.setLocale(locale);
         return toUser(user);
     }
 
@@ -248,7 +257,8 @@ public class AuthService {
                 user.isEmailVerified(),
                 member == null ? null : member.getCompany().getId(),
                 member == null ? null : member.getCompany().getName(),
-                member == null ? null : member.getMemberRole().name());
+                member == null ? null : member.getMemberRole().name(),
+                user.getLocale() == null ? "es" : user.getLocale());
     }
 
     private AuthDtos.AuthResponse issue(User user, HttpServletResponse response) {
@@ -274,6 +284,7 @@ public class AuthService {
         user.setPhone(Text.clean(phone));
         user.setStatus(UserStatus.PENDING);
         user.setEmailVerified(false);
+        user.setLocale("en".equalsIgnoreCase(org.springframework.context.i18n.LocaleContextHolder.getLocale().getLanguage()) ? "en" : "es");
         return user;
     }
 

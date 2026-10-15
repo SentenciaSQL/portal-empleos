@@ -24,6 +24,18 @@ public class EmailService {
 
     public void sendVerification(User user, String token) {
         String link = properties.getPublicUrl() + "/verificar-correo?token=" + token;
+        if (english(user)) {
+            send(user.getEmail(), "Confirm your EmpleoRD account", """
+                    Hello %s,
+
+                    Thanks for registering on EmpleoRD. Confirm your email to activate the account:
+
+                    %s
+
+                    The link expires in 48 hours. If you did not create this account, you can ignore this message.
+                    """.formatted(user.getFirstName(), link), link);
+            return;
+        }
         send(user.getEmail(), "Confirma tu cuenta en EmpleoRD", """
                 Hola %s,
 
@@ -37,6 +49,18 @@ public class EmailService {
 
     public void sendPasswordReset(User user, String token) {
         String link = properties.getPublicUrl() + "/restablecer?token=" + token;
+        if (english(user)) {
+            send(user.getEmail(), "Reset your EmpleoRD password", """
+                    Hello %s,
+
+                    We received a request to create or reset your password:
+
+                    %s
+
+                    The link expires in 2 hours. If this was not you, ignore this message.
+                    """.formatted(user.getFirstName(), link), link);
+            return;
+        }
         send(user.getEmail(), "Restablece tu contraseña de EmpleoRD", """
                 Hola %s,
 
@@ -48,8 +72,71 @@ public class EmailService {
                 """.formatted(user.getFirstName(), link), link);
     }
 
+    public void sendPasswordChanged(User user) {
+        if (english(user)) {
+            send(user.getEmail(), "Your EmpleoRD password was updated",
+                    "Hello " + user.getFirstName() + ",\n\nYour account password was updated. If this was not you, contact support immediately.", null);
+            return;
+        }
+        send(user.getEmail(), "Tu contraseña de EmpleoRD fue actualizada",
+                "Hola " + user.getFirstName() + ",\n\nLa contraseña de tu cuenta fue actualizada. Si no fuiste tú, escribe a soporte de inmediato.", null);
+    }
+
+    public void sendApplicationReceived(User user, String jobTitle) {
+        if (english(user)) {
+            send(user.getEmail(), "New application for " + jobTitle,
+                    "Hello " + user.getFirstName() + ",\n\nYou received a new application for " + jobTitle + ". Sign in to EmpleoRD to review it.", null);
+            return;
+        }
+        send(user.getEmail(), "Nueva postulación en " + jobTitle,
+                "Hola " + user.getFirstName() + ",\n\nRecibiste una nueva postulación para " + jobTitle + ". Entra a EmpleoRD para revisarla.", null);
+    }
+
+    public void sendApplicationStatus(User user, String jobTitle, String companyName) {
+        if (english(user)) {
+            send(user.getEmail(), "Update on your application",
+                    "Hello " + user.getFirstName() + ",\n\nYour application to " + jobTitle + " at " + companyName + " has a new status. Sign in to EmpleoRD to see the detail.", null);
+            return;
+        }
+        send(user.getEmail(), "Actualización de tu postulación",
+                "Hola " + user.getFirstName() + ",\n\nTu postulación a " + jobTitle + " en " + companyName + " tiene un nuevo estado. Entra a EmpleoRD para ver el detalle.", null);
+    }
+
+    public void sendJobExpiring(User user, String jobTitle) {
+        if (english(user)) {
+            send(user.getEmail(), "Your job post is about to expire",
+                    "Hello " + user.getFirstName() + ",\n\nThe job \"" + jobTitle + "\" expires soon. Sign in to EmpleoRD if you want to renew it.", null);
+            return;
+        }
+        send(user.getEmail(), "Tu oferta está por vencer",
+                "Hola " + user.getFirstName() + ",\n\nLa oferta \"" + jobTitle + "\" vence pronto. Entra a EmpleoRD si quieres renovarla.", null);
+    }
+
+    public void sendJobAlert(User user, String summary, java.util.List<String> titles, String link) {
+        String jobs = String.join("\n", titles);
+        String url = properties.getPublicUrl() + link;
+        if (english(user)) {
+            send(user.getEmail(), "New jobs for your alert",
+                    "Hello " + user.getFirstName() + ",\n\n" + summary + "\n\n" + jobs + "\n\n" + url, null);
+            return;
+        }
+        send(user.getEmail(), "Nuevas ofertas para tu alerta",
+                "Hola " + user.getFirstName() + ",\n\n" + summary + "\n\n" + jobs + "\n\n" + url, null);
+    }
+
+    public void sendSubscription(User user, String subject, String body) {
+        String text = english(user)
+                ? "Hello " + user.getFirstName() + ",\n\n" + body + "\n\n" + properties.getPublicUrl() + "/empresa/suscripcion"
+                : "Hola " + user.getFirstName() + ",\n\n" + body + "\n\n" + properties.getPublicUrl() + "/empresa/suscripcion";
+        send(user.getEmail(), subject, text, null);
+    }
+
     public void sendPlain(String to, String subject, String text) {
         send(to, subject, text, null);
+    }
+
+    private boolean english(User user) {
+        return user.getLocale() != null && user.getLocale().toLowerCase().startsWith("en");
     }
 
     private void send(String to, String subject, String text, String sensitiveLink) {

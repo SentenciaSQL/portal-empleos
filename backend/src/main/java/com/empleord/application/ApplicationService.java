@@ -88,10 +88,11 @@ public class ApplicationService {
         applications.save(application);
         String link = "/empresa/ofertas/" + job.getId() + "/candidatos";
         for (CompanyMember member : members.findByCompanyId(job.getCompany().getId())) {
-            notifications.notify(member.getUser(), NotificationType.APPLICATION_RECEIVED, "Nueva postulación",
-                    "Hay una nueva postulación para " + job.getTitle() + ".", link);
-            email.sendPlain(member.getUser().getEmail(), "Nueva postulación en " + job.getTitle(),
-                    "Hola " + member.getUser().getFirstName() + ",\n\nRecibiste una nueva postulación para " + job.getTitle() + ". Entra a EmpleoRD para revisarla.");
+            String locale = member.getUser().getLocale();
+            notifications.notify(member.getUser(), NotificationType.APPLICATION_RECEIVED,
+                    com.empleord.common.Texts.forUser(locale, "Nueva postulación", "New application"),
+                    com.empleord.common.Texts.forUser(locale, "Hay una nueva postulación para " + job.getTitle() + ".", "There is a new application for " + job.getTitle() + "."), link);
+            email.sendApplicationReceived(member.getUser(), job.getTitle());
         }
         audit.record(candidateId, "APPLY", "JobApplication", application.getId().toString(), job.getId().toString(), ip);
         return candidateView(application);
@@ -149,11 +150,12 @@ public class ApplicationService {
                 throw ApiException.badRequest("La persona candidata retiró esta postulación.");
             }
             application.setStatus(request.status());
-            notifications.notify(application.getCandidate().getUser(), NotificationType.APPLICATION_STATUS, "Actualización de tu postulación",
-                    "Tu postulación a " + application.getJob().getTitle() + " cambió de estado.", "/candidato/postulaciones");
-            email.sendPlain(application.getCandidate().getUser().getEmail(), "Actualización de tu postulación",
-                    "Hola " + application.getCandidate().getUser().getFirstName() + ",\n\nTu postulación a " + application.getJob().getTitle()
-                            + " en " + application.getJob().getCompany().getName() + " tiene un nuevo estado. Entra a EmpleoRD para ver el detalle.");
+            String locale = application.getCandidate().getUser().getLocale();
+            notifications.notify(application.getCandidate().getUser(), NotificationType.APPLICATION_STATUS,
+                    com.empleord.common.Texts.forUser(locale, "Actualización de tu postulación", "Update on your application"),
+                    com.empleord.common.Texts.forUser(locale, "Tu postulación a " + application.getJob().getTitle() + " cambió de estado.", "Your application to " + application.getJob().getTitle() + " has a new status."),
+                    "/candidato/postulaciones");
+            email.sendApplicationStatus(application.getCandidate().getUser(), application.getJob().getTitle(), application.getJob().getCompany().getName());
             audit.record(SecurityUtils.requireUser().getId(), "APPLICATION_STATUS", "JobApplication", id.toString(), request.status().name(), ip);
         }
         return companyView(application);

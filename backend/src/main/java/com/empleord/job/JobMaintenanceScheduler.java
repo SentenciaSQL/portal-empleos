@@ -41,10 +41,12 @@ public class JobMaintenanceScheduler {
             String link = "/empresa/ofertas";
             members.findByCompanyId(job.getCompany().getId()).forEach(member -> {
                 if (!notifications.alreadySent(member.getUser().getId(), NotificationType.JOB_EXPIRING, link + "?job=" + job.getId())) {
-                    notifications.notify(member.getUser(), NotificationType.JOB_EXPIRING, "Tu oferta está por vencer",
-                            job.getTitle() + " deja de estar publicada en los próximos días.", link);
-                    email.sendPlain(member.getUser().getEmail(), "Tu oferta está por vencer",
-                            "Hola " + member.getUser().getFirstName() + ",\n\nLa oferta \"" + job.getTitle() + "\" vence pronto. Entra a EmpleoRD si quieres renovarla.");
+                    String locale = member.getUser().getLocale();
+                    notifications.notify(member.getUser(), NotificationType.JOB_EXPIRING,
+                            com.empleord.common.Texts.forUser(locale, "Tu oferta está por vencer", "Your job post is about to expire"),
+                            com.empleord.common.Texts.forUser(locale, job.getTitle() + " deja de estar publicada en los próximos días.", job.getTitle() + " stops being published in the next few days."),
+                            link);
+                    email.sendJobExpiring(member.getUser(), job.getTitle());
                 }
             });
         }

@@ -1,11 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Title } from '@angular/platform-browser';
 import { Envelope, JobCard, Named, Page } from '../core/models';
 import { JobCardView } from '../shared/job-card';
-import { apiError } from '../core/format';
+import { I18nService } from '../core/i18n.service';
 
 @Component({
   selector: 'app-job-list',
@@ -17,6 +17,7 @@ export class JobListPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  readonly i18n = inject(I18nService);
   readonly provinces = signal<Named[]>([]);
   readonly municipalities = signal<Named[]>([]);
   readonly categories = signal<Named[]>([]);
@@ -29,7 +30,8 @@ export class JobListPage {
   });
 
   constructor() {
-    inject(Title).setTitle('Empleos en República Dominicana | EmpleoRD');
+    const title = inject(Title);
+    effect(() => title.setTitle(this.i18n.t('Empleos en República Dominicana | EmpleoRD')));
     this.http.get<Envelope<Named[]>>('/api/catalog/provinces').subscribe((res) => this.provinces.set(res.data));
     this.http.get<Envelope<Named[]>>('/api/catalog/categories').subscribe((res) => this.categories.set(res.data));
     this.route.queryParamMap.subscribe((params) => {
@@ -81,7 +83,7 @@ export class JobListPage {
     });
     this.http.get<Envelope<Page<JobCard>>>('/api/jobs', { params }).subscribe({
       next: (res) => { this.result.set(res.data); this.loading.set(false); },
-      error: (err) => { this.error.set(apiError(err)); this.loading.set(false); },
+      error: (err) => { this.error.set(this.i18n.apiError(err)); this.loading.set(false); },
     });
   }
 }
