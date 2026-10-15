@@ -51,12 +51,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/catalog/**", "/api/health", "/sitemap.xml", "/robots.txt", "/public/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/*", "/api/companies/*", "/api/media/**", "/api/files/resumes").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/jobs/*/reports").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/jobs/*/reports", "/api/payments/paypal/webhook").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/jobs/*/applications").hasRole("CANDIDATE")
                         .requestMatchers("/api/candidate/**").hasRole("CANDIDATE")
                         .requestMatchers("/api/company/**").hasRole("EMPLOYER")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/notifications/**", "/api/auth/me").authenticated()
+                        .requestMatchers("/api/notifications/**", "/api/auth/me", "/api/auth/locale").authenticated()
                         .anyRequest().denyAll())
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -73,7 +73,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(properties.corsOriginList());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept-Language"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

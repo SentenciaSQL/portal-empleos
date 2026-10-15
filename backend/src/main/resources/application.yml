@@ -62,3 +62,9 @@ app:
   cookie-secure: ${COOKIE_SECURE:false}
   job-default-days: ${JOB_DEFAULT_DAYS:30}
   production: ${APP_PRODUCTION:false}
+  paypal:
+    enabled: ${PAYPAL_ENABLED:false}
+    mode: ${PAYPAL_MODE:sandbox}
+    client-id: ${PAYPAL_CLIENT_ID:}
+    client-secret: ${PAYPAL_CLIENT_SECRET:}
+    webhook-id: ${PAYPAL_WEBHOOK_ID:}

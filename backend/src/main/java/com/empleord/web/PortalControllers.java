@@ -3,9 +3,13 @@ package com.empleord.web;
 import com.empleord.admin.AdminService;
 import com.empleord.application.ApplicationDtos;
 import com.empleord.application.ApplicationService;
+import com.empleord.billing.BillingDtos;
+import com.empleord.billing.BillingService;
 import com.empleord.candidate.AccountService;
 import com.empleord.candidate.CandidateDtos;
 import com.empleord.candidate.CandidateProfileService;
+import com.empleord.candidate.GeneratedResumeService;
+import com.empleord.candidate.JobAlertService;
 import com.empleord.candidate.ResumeService;
 import com.empleord.candidate.SavedJobService;
 import com.empleord.common.ApiResponse;
@@ -30,6 +34,8 @@ import com.empleord.notification.NotificationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -196,13 +202,17 @@ class CandidateController {
     private final SavedJobService savedJobs;
     private final ApplicationService applications;
     private final AccountService accounts;
+    private final GeneratedResumeService generatedResumes;
+    private final JobAlertService jobAlerts;
 
-    CandidateController(CandidateProfileService profiles, ResumeService resumes, SavedJobService savedJobs, ApplicationService applications, AccountService accounts) {
+    CandidateController(CandidateProfileService profiles, ResumeService resumes, SavedJobService savedJobs, ApplicationService applications, AccountService accounts, GeneratedResumeService generatedResumes, JobAlertService jobAlerts) {
         this.profiles = profiles;
         this.resumes = resumes;
         this.savedJobs = savedJobs;
         this.applications = applications;
         this.accounts = accounts;
+        this.generatedResumes = generatedResumes;
+        this.jobAlerts = jobAlerts;
     }
 
     @GetMapping("/profile")
@@ -301,6 +311,46 @@ class CandidateController {
         return ApiResponse.ok(Map.of("url", resumes.signedLinkForCurrentUser(id)));
     }
 
+    @GetMapping(value = "/resume.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> generatedResume() {
+        GeneratedResumeService.Document document = generatedResumes.forCurrentUser();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + document.filename() + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(document.bytes());
+    }
+
+    @GetMapping("/alerts")
+    public ApiResponse<List<JobAlertService.AlertItem>> alerts() {
+        return ApiResponse.ok(jobAlerts.list());
+    }
+
+    @PostMapping("/alerts")
+    public ApiResponse<JobAlertService.AlertItem> createAlert(@Valid @RequestBody JobAlertService.AlertRequest request) {
+        return ApiResponse.ok(jobAlerts.create(request));
+    }
+
+    @PutMapping("/alerts/{id}")
+    public ApiResponse<JobAlertService.AlertItem> updateAlert(@PathVariable UUID id, @Valid @RequestBody JobAlertService.AlertRequest request) {
+        return ApiResponse.ok(jobAlerts.update(id, request));
+    }
+
+    @PatchMapping("/alerts/{id}")
+    public ApiResponse<JobAlertService.AlertItem> alertActive(@PathVariable UUID id, @Valid @RequestBody JobAlertService.ActiveRequest request) {
+        return ApiResponse.ok(jobAlerts.setActive(id, request.active()));
+    }
+
+    @DeleteMapping("/alerts/{id}")
+    public ApiResponse<Void> deleteAlert(@PathVariable UUID id) {
+        jobAlerts.delete(id);
+        return ApiResponse.message("Alerta eliminada.");
+    }
+
+    @GetMapping("/alerts/{id}/jobs")
+    public ApiResponse<List<JobDtos.JobCard>> alertJobs(@PathVariable UUID id) {
+        return ApiResponse.ok(jobAlerts.matches(id));
+    }
+
     @GetMapping("/applications")
     public ApiResponse<List<ApplicationDtos.CandidateApplication>> applications() {
         return ApiResponse.ok(applications.mine());
@@ -347,11 +397,28 @@ class CompanyManageController {
     private final CompanyService companies;
     private final JobCommandService jobs;
     private final ApplicationService applications;
+    private final BillingService billing;
 
-    CompanyManageController(CompanyService companies, JobCommandService jobs, ApplicationService applications) {
+    CompanyManageController(CompanyService companies, JobCommandService jobs, ApplicationService applications, BillingService billing) {
         this.companies = companies;
         this.jobs = jobs;
         this.applications = applications;
+        this.billing = billing;
+    }
+
+    @GetMapping("/subscription")
+    public ApiResponse<BillingDtos.SubscriptionView> subscription() {
+        return ApiResponse.ok(billing.view());
+    }
+
+    @PostMapping("/subscription/checkout")
+    public ApiResponse<BillingDtos.CheckoutResponse> checkout(@RequestBody BillingDtos.CheckoutRequest request) {
+        return ApiResponse.ok(billing.checkout(request.planCode(), request.returnUrl(), request.cancelUrl()));
+    }
+
+    @PostMapping("/subscription/cancel")
+    public ApiResponse<Void> cancelSubscription() {
+        return ApiResponse.message(billing.cancel());
     }
 
     @GetMapping

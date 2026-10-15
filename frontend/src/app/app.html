@@ -1,32 +1,42 @@
-<a class="sr-only" href="#contenido">Saltar al contenido</a>
+<a class="sr-only" href="#contenido">{{ i18n.t('Saltar al contenido') }}</a>
 <header class="border-b border-line bg-navy text-white">
   <div class="wrap flex items-center justify-between gap-4 py-3">
     <a routerLink="/" class="font-serif text-2xl tracking-tight" (click)="closeMenu()">EmpleoRD</a>
-    <button class="btn btn-ghost border-white/30 text-white md:hidden" type="button" [attr.aria-expanded]="menuOpen()" (click)="menuOpen.set(!menuOpen())">Menú</button>
-    <nav class="hidden items-center gap-5 md:flex" aria-label="Principal">
-      <a routerLink="/empleos" routerLinkActive="underline">Empleos</a>
-      <a routerLink="/empresa/ofertas/nueva">Publicar empleo</a>
+    <div class="flex items-center gap-2 md:hidden">
+      <div class="flex rounded-full border border-white/30 p-0.5" role="group" [attr.aria-label]="i18n.t('Idioma')">
+        <button class="rounded-full px-2 py-1 text-xs" type="button" [class.bg-white]="i18n.lang() === 'es'" [class.text-navy]="i18n.lang() === 'es'" [attr.aria-pressed]="i18n.lang() === 'es'" (click)="setLang('es')">ES</button>
+        <button class="rounded-full px-2 py-1 text-xs" type="button" [class.bg-white]="i18n.lang() === 'en'" [class.text-navy]="i18n.lang() === 'en'" [attr.aria-pressed]="i18n.lang() === 'en'" (click)="setLang('en')">EN</button>
+      </div>
+      <button class="btn btn-ghost border-white/30 text-white" type="button" [attr.aria-expanded]="menuOpen()" (click)="menuOpen.set(!menuOpen())">{{ i18n.t('Menú') }}</button>
+    </div>
+    <nav class="hidden items-center gap-5 md:flex" [attr.aria-label]="i18n.t('Principal')">
+      <a routerLink="/empleos" routerLinkActive="underline">{{ i18n.t('Empleos') }}</a>
+      <a routerLink="/empresa/ofertas/nueva">{{ i18n.t('Publicar empleo') }}</a>
       @if (user(); as session) {
-        <a routerLink="/notificaciones">Avisos</a>
+        <a routerLink="/notificaciones">{{ i18n.t('Avisos') }}</a>
         <a [routerLink]="panelLink()">{{ session.firstName }}</a>
-        <button class="btn btn-primary" type="button" (click)="logout()">Salir</button>
+        <button class="btn btn-primary" type="button" (click)="logout()">{{ i18n.t('Salir') }}</button>
       } @else {
-        <a routerLink="/entrar">Entrar</a>
-        <a class="btn btn-primary" routerLink="/registro">Crear cuenta</a>
+        <a routerLink="/entrar">{{ i18n.t('Entrar') }}</a>
+        <a class="btn btn-primary" routerLink="/registro">{{ i18n.t('Crear cuenta') }}</a>
       }
+      <div class="flex rounded-full border border-white/30 p-0.5" role="group" [attr.aria-label]="i18n.t('Idioma')">
+        <button class="rounded-full px-2 py-1 text-xs" type="button" [class.bg-white]="i18n.lang() === 'es'" [class.text-navy]="i18n.lang() === 'es'" [attr.aria-pressed]="i18n.lang() === 'es'" (click)="setLang('es')">{{ i18n.t('Español') }}</button>
+        <button class="rounded-full px-2 py-1 text-xs" type="button" [class.bg-white]="i18n.lang() === 'en'" [class.text-navy]="i18n.lang() === 'en'" [attr.aria-pressed]="i18n.lang() === 'en'" (click)="setLang('en')">{{ i18n.t('Inglés') }}</button>
+      </div>
     </nav>
   </div>
   @if (menuOpen()) {
-    <nav class="wrap grid gap-3 pb-4 md:hidden" aria-label="Móvil">
-      <a routerLink="/empleos" (click)="closeMenu()">Empleos</a>
-      <a routerLink="/empresa/ofertas/nueva" (click)="closeMenu()">Publicar empleo</a>
+    <nav class="wrap grid gap-3 pb-4 md:hidden" [attr.aria-label]="i18n.t('Móvil')">
+      <a routerLink="/empleos" (click)="closeMenu()">{{ i18n.t('Empleos') }}</a>
+      <a routerLink="/empresa/ofertas/nueva" (click)="closeMenu()">{{ i18n.t('Publicar empleo') }}</a>
       @if (user(); as session) {
-        <a routerLink="/notificaciones" (click)="closeMenu()">Avisos</a>
-        <a [routerLink]="panelLink()" (click)="closeMenu()">Mi panel</a>
-        <button class="btn btn-primary w-fit" type="button" (click)="logout()">Salir</button>
+        <a routerLink="/notificaciones" (click)="closeMenu()">{{ i18n.t('Avisos') }}</a>
+        <a [routerLink]="panelLink()" (click)="closeMenu()">{{ i18n.t('Mi panel') }}</a>
+        <button class="btn btn-primary w-fit" type="button" (click)="logout()">{{ i18n.t('Salir') }}</button>
       } @else {
-        <a routerLink="/entrar" (click)="closeMenu()">Entrar</a>
-        <a routerLink="/registro" (click)="closeMenu()">Crear cuenta</a>
+        <a routerLink="/entrar" (click)="closeMenu()">{{ i18n.t('Entrar') }}</a>
+        <a routerLink="/registro" (click)="closeMenu()">{{ i18n.t('Crear cuenta') }}</a>
       }
     </nav>
   }
@@ -36,7 +46,7 @@
 </main>
 <footer class="mt-16 border-t border-line">
   <div class="wrap flex flex-col gap-3 py-8 text-sm text-muted sm:flex-row sm:justify-between">
-    <p>EmpleoRD conecta empresas y personas en República Dominicana. Las cuentas de demostración no representan empleadores reales.</p>
-    <a routerLink="/privacidad">Privacidad y datos personales</a>
+    <p>{{ i18n.t('EmpleoRD conecta empresas y personas en República Dominicana. Las cuentas de demostración no representan empleadores reales.') }}</p>
+    <a routerLink="/privacidad">{{ i18n.t('Privacidad y datos personales') }}</a>
   </div>
 </footer>

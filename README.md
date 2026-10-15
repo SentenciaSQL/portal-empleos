@@ -11,17 +11,42 @@ Fase 1, más lo necesario para que los botones de la interfaz llamen a la API:
 - Perfil de empresa, logotipo y varios reclutadores.
 - Publicar, editar, pausar y cerrar ofertas. Búsqueda pública con filtros combinables.
 - Postulación, favoritos, estados de candidatura, notas internas y currículum con enlace firmado.
-- Avisos en el portal y plantillas de correo en español. El envío real queda apagado hasta configurar SMTP.
+- Avisos en el portal y plantillas de correo en español e inglés. El envío real queda apagado hasta configurar SMTP.
 - Verificación de empresas, moderación, reportes, planes editables y destaque de ofertas.
 - Estadísticas calculadas con los datos guardados.
 - URLs de ofertas, sitemap, robots.txt y HTML con Open Graph para redes sociales.
+- Currículum PDF generado desde el perfil del candidato, separado del PDF que la persona sube.
+- Alertas de empleo con filtros combinables, frecuencia inmediata, diaria o semanal, y avisos sin duplicar la misma oferta.
+- Interfaz en español (predeterminado) e inglés. El selector está en la navegación y la preferencia se guarda en el navegador y en la cuenta.
+- Contratación del plan de pago mediante PayPal Subscriptions. Sin credenciales no hay cobro y ninguna transacción se marca como pagada.
 
-Queda preparado y no está terminado:
+## Pagos
 
-- Cobro real. Existe la interfaz `PaymentGateway`; no hay checkout.
-- Alertas de empleo por correo: la tabla y el contador existen; no hay pantalla para crearlas.
-- Currículum PDF generado desde el perfil. En esta fase se sube un PDF.
-- Interfaz en inglés y expansión a otros países. Los catálogos de país ya están en la base.
+El precio se lee de `subscription_plans`. El valor inicial del plan profesional es un dato sembrado, no una constante del código.
+
+PayPal es el proveedor porque, a la fecha de esta integración, admite suscripciones en DOP y una página de aprobación donde la empresa paga sin que EmpleoRD guarde la tarjeta. Stripe no habilita República Dominicana como país de la cuenta comercial. Las suscripciones de Mercado Pago no están disponibles para comercios dominicanos. Azul y Cardnet sí operan en el país, pero exigen afiliación comercial y, en el caso de Azul, acceso por VPN o TLS mutuo; la interfaz `PaymentGateway` permite sustituir el proveedor sin reescribir la lógica de planes.
+
+Limitaciones:
+
+- Cada contratación crea un plan de facturación en PayPal con el precio vigente. Una suscripción ya creada conserva el precio con el que se aprobó.
+- El plan local no cambia cuando el navegador vuelve de PayPal. Solo un webhook con firma verificada puede activarlo, registrar un pago, marcarlo como fallido, cancelarlo o vencerlo.
+- El mismo evento de PayPal no se aplica dos veces.
+- Si `PAYPAL_ENABLED` no es `true` o faltan credenciales, el checkout responde que la pasarela no está configurada.
+- Recibir fondos en República Dominicana puede requerir el socio local con licencia que PayPal indique para esa cuenta. Eso es una configuración de la cuenta PayPal, no de este repositorio.
+
+Variables:
+
+```bash
+PAYPAL_ENABLED=false
+PAYPAL_MODE=sandbox
+PAYPAL_CLIENT_ID=
+PAYPAL_CLIENT_SECRET=
+PAYPAL_WEBHOOK_ID=
+```
+
+Para activarlo: crea una aplicación REST en el sandbox de PayPal, copia el client id y el secret, crea un webhook apuntando a `https://<tu-api>/api/payments/paypal/webhook` para los eventos `BILLING.SUBSCRIPTION.ACTIVATED`, `BILLING.SUBSCRIPTION.CANCELLED`, `BILLING.SUBSCRIPTION.EXPIRED`, `BILLING.SUBSCRIPTION.SUSPENDED`, `BILLING.SUBSCRIPTION.PAYMENT.FAILED` y `PAYMENT.SALE.COMPLETED`, y pon su id en `PAYPAL_WEBHOOK_ID`. En producción usa `PAYPAL_MODE=live` junto con `APP_PRODUCTION=true`.
+
+La empresa dueña contrata desde `/empresa/suscripcion`. Un reclutador puede ver el estado, no contratar. Un administrador puede asignar un plan sin pasar por PayPal; esa asignación no cancela una suscripción que ya exista en PayPal.
 
 ## Cuentas de demostración
 
@@ -79,6 +104,7 @@ Interfaz en http://localhost:8088. API directa en http://localhost:8080. Postgre
 - La API lee `PORT`.
 - Si el proveedor entrega `DATABASE_URL` como `postgres://usuario:clave@host:5432/db`, el arranque lo convierte a JDBC.
 - Define `JWT_SECRET`, `FILE_SIGNING_SECRET`, `COOKIE_SECURE=true`, `APP_PRODUCTION=true`, `APP_PUBLIC_URL` y `API_PUBLIC_URL`.
+- PayPal, si se usa, exige `PAYPAL_ENABLED=true`, `PAYPAL_MODE=live` y las tres credenciales. El webhook público es `POST /api/payments/paypal/webhook`.
 - `APP_PRODUCTION=true` rechaza los secretos de desarrollo.
 - Los currículums se guardan en `STORAGE_PATH`. En un disco efímero, monta un volumen.
 - El correo sale por SMTP (`MAIL_ENABLED=true` y el resto de variables `MAIL_*`).

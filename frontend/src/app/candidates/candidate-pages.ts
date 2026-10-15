@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../core/auth.service';
-import { apiError, formatDate, label } from '../core/format';
+import { I18nService } from '../core/i18n.service';
 import { Envelope, JobCard, Named } from '../core/models';
 import { JobCardView } from '../shared/job-card';
 
@@ -12,33 +12,38 @@ import { JobCardView } from '../shared/job-card';
   imports: [RouterLink],
   template: `
     <section class="wrap py-8">
-      <h1 class="text-4xl">Hola, {{ auth.user()?.firstName }}</h1>
+      <h1 class="text-4xl">{{ i18n.t('Hola,') }} {{ auth.user()?.firstName }}</h1>
       <div class="mt-6 grid gap-3 sm:grid-cols-4">
         @for (item of cards(); track item.label) {
           <article class="card p-4"><p class="text-sm text-muted">{{ item.label }}</p><p class="font-serif text-3xl">{{ item.value }}</p></article>
         }
       </div>
       <div class="mt-6 flex flex-wrap gap-3">
-        <a class="btn btn-primary" routerLink="/empleos">Buscar empleos</a>
-        <a class="btn btn-ghost" routerLink="/candidato/perfil">Editar perfil</a>
-        <a class="btn btn-ghost" routerLink="/candidato/postulaciones">Postulaciones</a>
-        <a class="btn btn-ghost" routerLink="/candidato/guardados">Guardadas</a>
+        <a class="btn btn-primary" routerLink="/empleos">{{ i18n.t('Buscar empleos') }}</a>
+        <a class="btn btn-ghost" routerLink="/candidato/perfil">{{ i18n.t('Editar perfil') }}</a>
+        <a class="btn btn-ghost" routerLink="/candidato/postulaciones">{{ i18n.t('Postulaciones') }}</a>
+        <a class="btn btn-ghost" routerLink="/candidato/guardados">{{ i18n.t('Guardadas') }}</a>
+        <a class="btn btn-ghost" routerLink="/candidato/alertas">{{ i18n.t('Mis alertas') }}</a>
       </div>
     </section>
   `,
 })
 export class CandidateHome {
   readonly auth = inject(AuthService);
-  readonly cards = signal<{ label: string; value: number }[]>([]);
+  readonly i18n = inject(I18nService);
+  readonly stats = signal<{ applications: number; inProgress: number; savedJobs: number; activeAlerts: number } | null>(null);
+  readonly cards = () => {
+    const data = this.stats();
+    if (!data) return [];
+    return [
+      { label: this.i18n.t('Postulaciones enviadas'), value: data.applications },
+      { label: this.i18n.t('En proceso'), value: data.inProgress },
+      { label: this.i18n.t('Ofertas guardadas'), value: data.savedJobs },
+      { label: this.i18n.t('Alertas activas'), value: data.activeAlerts },
+    ];
+  };
   constructor() {
-    inject(HttpClient).get<Envelope<{ applications: number; inProgress: number; savedJobs: number; activeAlerts: number }>>('/api/candidate/stats').subscribe((res) => {
-      this.cards.set([
-        { label: 'Postulaciones enviadas', value: res.data.applications },
-        { label: 'En proceso', value: res.data.inProgress },
-        { label: 'Ofertas guardadas', value: res.data.savedJobs },
-        { label: 'Alertas activas', value: res.data.activeAlerts },
-      ]);
-    });
+    inject(HttpClient).get<Envelope<{ applications: number; inProgress: number; savedJobs: number; activeAlerts: number }>>('/api/candidate/stats').subscribe((res) => this.stats.set(res.data));
   }
 }
 
@@ -51,13 +56,13 @@ export class CandidateProfilePage {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  readonly i18n = inject(I18nService);
   readonly provinces = signal<Named[]>([]);
   readonly municipalities = signal<Named[]>([]);
   readonly skills = signal<Named[]>([]);
   readonly profile = signal<Profile | null>(null);
   readonly message = signal<string | null>(null);
   readonly error = signal<string | null>(null);
-  readonly label = label;
   readonly profileForm = inject(FormBuilder).nonNullable.group({
     headline: [''], summary: [''], provinceId: [''], municipalityId: [''], linkedinUrl: [''], portfolioUrl: [''],
     salaryMin: [''], salaryMax: [''], salaryCurrency: ['DOP'], salaryPeriod: ['MONTH'], openToWork: [true],
@@ -92,8 +97,8 @@ export class CandidateProfilePage {
   saveProfile(): void {
     const raw = this.profileForm.getRawValue();
     this.http.put('/api/candidate/profile', { ...raw, provinceId: num(raw.provinceId), municipalityId: num(raw.municipalityId), salaryMin: num(raw.salaryMin), salaryMax: num(raw.salaryMax) }).subscribe({
-      next: () => { this.message.set('Perfil guardado.'); this.reload(); },
-      error: (err) => this.error.set(apiError(err)),
+      next: () => { this.message.set(this.i18n.t('Perfil guardado.')); this.reload(); },
+      error: (err) => this.error.set(this.i18n.apiError(err)),
     });
   }
   addExperience(): void { this.post('/api/candidate/experiences', blank(this.experienceForm.getRawValue())); }
@@ -103,31 +108,49 @@ export class CandidateProfilePage {
   }
   addCert(): void { this.post('/api/candidate/certifications', { ...blank(this.certForm.getRawValue()), issueYear: num(this.certForm.controls.issueYear.value) }); }
   addLanguage(): void { this.post('/api/candidate/languages', this.languageForm.getRawValue()); }
-  remove(path: string): void { this.http.delete(path).subscribe({ next: () => this.reload(), error: (err) => this.error.set(apiError(err)) }); }
+  remove(path: string): void { this.http.delete(path).subscribe({ next: () => this.reload(), error: (err) => this.error.set(this.i18n.apiError(err)) }); }
   toggleSkill(id: number, checked: boolean): void {
     const current = new Set(this.profile()?.skills.map((skill) => skill.id) ?? []);
     if (checked) current.add(id); else current.delete(id);
-    this.http.put('/api/candidate/skills', { skillIds: [...current] }).subscribe({ next: () => this.reload(), error: (err) => this.error.set(apiError(err)) });
+    this.http.put('/api/candidate/skills', { skillIds: [...current] }).subscribe({ next: () => this.reload(), error: (err) => this.error.set(this.i18n.apiError(err)) });
   }
   upload(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     const data = new FormData();
     data.set('file', file);
-    this.http.post('/api/candidate/resumes', data).subscribe({ next: () => this.reload(), error: (err) => this.error.set(apiError(err)) });
+    this.http.post('/api/candidate/resumes', data).subscribe({ next: () => this.reload(), error: (err) => this.error.set(this.i18n.apiError(err)) });
   }
   primary(id: string): void { this.http.post(`/api/candidate/resumes/${id}/primary`, {}).subscribe(() => this.reload()); }
   download(id: string): void {
     this.http.get<Envelope<{ url: string }>>(`/api/candidate/resumes/${id}/link`).subscribe((res) => window.open(res.data.url, '_blank', 'noopener'));
   }
-  deleteAccount(): void {
-    if (!confirm('Esto anonimiza tu cuenta y elimina tu currículum. ¿Continuar?')) return;
-    this.http.delete<Envelope<unknown>>('/api/candidate/account').subscribe({
-      next: async () => { await this.auth.logout(); await this.router.navigateByUrl('/'); },
-      error: (err) => this.error.set(apiError(err)),
+  downloadGenerated(): void {
+    this.message.set(this.i18n.t('Generando currículum…'));
+    this.http.get('/api/candidate/resume.pdf', { responseType: 'blob', observe: 'response' }).subscribe({
+      next: (res) => {
+        const blob = res.body;
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const match = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') ?? '');
+        link.href = url;
+        link.download = match?.[1] || 'curriculum.pdf';
+        link.click();
+        URL.revokeObjectURL(url);
+        this.message.set(null);
+      },
+      error: () => this.error.set(this.i18n.t('No se pudo descargar el currículum.')),
     });
   }
-  private post(url: string, body: unknown): void { this.http.post(url, body).subscribe({ next: () => this.reload(), error: (err) => this.error.set(apiError(err)) }); }
+  deleteAccount(): void {
+    if (!confirm(this.i18n.t('Esto anonimiza tu cuenta y elimina tu currículum. ¿Continuar?'))) return;
+    this.http.delete<Envelope<unknown>>('/api/candidate/account').subscribe({
+      next: async () => { await this.auth.logout(); await this.router.navigateByUrl('/'); },
+      error: (err) => this.error.set(this.i18n.apiError(err)),
+    });
+  }
+  private post(url: string, body: unknown): void { this.http.post(url, body).subscribe({ next: () => this.reload(), error: (err) => this.error.set(this.i18n.apiError(err)) }); }
   private loadMunicipalities(id: string): void {
     if (!id) return;
     this.http.get<Envelope<Named[]>>(`/api/catalog/provinces/${id}/municipalities`).subscribe((res) => this.municipalities.set(res.data));
@@ -139,17 +162,17 @@ export class CandidateProfilePage {
   imports: [RouterLink],
   template: `
     <section class="wrap py-8">
-      <h1 class="text-4xl">Mis postulaciones</h1>
+      <h1 class="text-4xl">{{ i18n.t('Mis postulaciones') }}</h1>
       <div class="mt-4 grid gap-3">
         @for (item of items(); track item.id) {
           <article class="card p-4">
             <h2 class="text-xl"><a [routerLink]="['/empleos', item.jobSlug]">{{ item.jobTitle }}</a></h2>
-            <p>{{ item.companyName }} · {{ label(item.status) }} · {{ formatDate(item.appliedAt) }}</p>
+            <p>{{ item.companyName }} · {{ i18n.label(item.status) }} · {{ i18n.date(item.appliedAt) }}</p>
             @if (item.status !== 'WITHDRAWN' && item.status !== 'HIRED' && item.status !== 'REJECTED') {
-              <button class="btn btn-ghost mt-3" type="button" (click)="withdraw(item.id)">Retirar postulación</button>
+              <button class="btn btn-ghost mt-3" type="button" (click)="withdraw(item.id)">{{ i18n.t('Retirar postulación') }}</button>
             }
           </article>
-        } @empty { <p class="card p-4">Todavía no te has postulado.</p> }
+        } @empty { <p class="card p-4">{{ i18n.t('Todavía no te has postulado.') }}</p> }
       </div>
     </section>
   `,
@@ -157,8 +180,7 @@ export class CandidateProfilePage {
 export class CandidateApplicationsPage {
   private readonly http = inject(HttpClient);
   readonly items = signal<ApplicationItem[]>([]);
-  readonly label = label;
-  readonly formatDate = formatDate;
+  readonly i18n = inject(I18nService);
   constructor() { this.load(); }
   withdraw(id: string): void { this.http.post(`/api/candidate/applications/${id}/withdraw`, {}).subscribe(() => this.load()); }
   private load(): void { this.http.get<Envelope<ApplicationItem[]>>('/api/candidate/applications').subscribe((res) => this.items.set(res.data)); }
@@ -167,9 +189,10 @@ export class CandidateApplicationsPage {
 @Component({
   selector: 'app-saved-jobs',
   imports: [JobCardView],
-  template: `<section class="wrap py-8"><h1 class="text-4xl">Ofertas guardadas</h1><div class="mt-4 grid gap-3">@for (job of jobs(); track job.id) { <app-job-card [job]="job" /> } @empty { <p>No has guardado ofertas.</p> }</div></section>`,
+  template: `<section class="wrap py-8"><h1 class="text-4xl">{{ i18n.t('Ofertas guardadas') }}</h1><div class="mt-4 grid gap-3">@for (job of jobs(); track job.id) { <app-job-card [job]="job" /> } @empty { <p>{{ i18n.t('No has guardado ofertas.') }}</p> }</div></section>`,
 })
 export class SavedJobsPage {
+  readonly i18n = inject(I18nService);
   readonly jobs = signal<JobCard[]>([]);
   constructor() { inject(HttpClient).get<Envelope<JobCard[]>>('/api/candidate/saved-jobs').subscribe((res) => this.jobs.set(res.data)); }
 }

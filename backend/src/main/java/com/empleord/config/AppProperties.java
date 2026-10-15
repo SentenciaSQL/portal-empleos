@@ -21,6 +21,7 @@ public class AppProperties {
     private boolean cookieSecure;
     private int jobDefaultDays = 30;
     private boolean production;
+    private Paypal paypal = new Paypal();
 
     public List<String> corsOriginList() {
         return Arrays.stream(corsOrigins.split(",")).map(String::trim).filter(value -> !value.isEmpty()).toList();
@@ -47,5 +48,15 @@ public class AppProperties {
         private String from = "noreply@empleord.do";
         private boolean enabled;
         private boolean logLinks;
+    }
+
+    @Getter
+    @Setter
+    public static class Paypal {
+        private boolean enabled;
+        private String mode = "sandbox";
+        private String clientId = "";
+        private String clientSecret = "";
+        private String webhookId = "";
     }
 }

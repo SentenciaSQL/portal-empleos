@@ -69,6 +69,9 @@ public class User extends AuditableEntity {
     @Column(name = "password_reset_expires_at")
     private Instant passwordResetExpiresAt;
 
+    @Column(nullable = false, length = 5)
+    private String locale = "es";
+
     @Column(name = "deleted_at")
     private Instant deletedAt;
 

@@ -1,6 +1,9 @@
 package com.empleord.domain.enums;
 
 public enum SubscriptionStatus {
+    PENDING,
     ACTIVE,
-    CANCELLED
+    PAYMENT_FAILED,
+    CANCELLED,
+    EXPIRED
 }

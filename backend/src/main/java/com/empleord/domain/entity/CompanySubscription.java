@@ -48,4 +48,13 @@ public class CompanySubscription extends AuditableEntity {
 
     @Column(name = "ends_at")
     private Instant endsAt;
+
+    @Column(length = 32)
+    private String provider;
+
+    @Column(name = "provider_subscription_id", length = 80)
+    private String providerSubscriptionId;
+
+    @Column(name = "provider_plan_id", length = 80)
+    private String providerPlanId;
 }

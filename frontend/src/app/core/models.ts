@@ -22,6 +22,7 @@ export interface UserSession {
   companyId: string | null;
   companyName: string | null;
   memberRole: string | null;
+  locale?: string | null;
 }
 
 export interface AuthPayload {
