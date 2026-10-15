@@ -1,0 +1,80 @@
+<section class="wrap grid max-w-3xl gap-6 py-8">
+  <h1 class="text-4xl">Perfil profesional</h1>
+  @if (message()) { <p class="ok">{{ message() }}</p> }
+  @if (error()) { <p class="alert" role="alert">{{ error() }}</p> }
+  <form class="card grid gap-3 p-4" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+    <h2 class="text-2xl">Resumen y expectativas</h2>
+    <label class="field"><span>Titular</span><input formControlName="headline"></label>
+    <label class="field"><span>Resumen</span><textarea rows="4" formControlName="summary"></textarea></label>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <label class="field"><span>Provincia</span><select formControlName="provinceId" (change)="onProvince()"><option value="">Selecciona</option>@for (item of provinces(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }</select></label>
+      <label class="field"><span>Municipio</span><select formControlName="municipalityId"><option value="">Selecciona</option>@for (item of municipalities(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }</select></label>
+      <label class="field"><span>Salario mínimo esperado</span><input formControlName="salaryMin" type="number" min="0"></label>
+      <label class="field"><span>Salario máximo esperado</span><input formControlName="salaryMax" type="number" min="0"></label>
+      <label class="field"><span>Moneda</span><input formControlName="salaryCurrency" maxlength="3"></label>
+      <label class="field"><span>Frecuencia</span><select formControlName="salaryPeriod"><option value="MONTH">Mensual</option><option value="HOUR">Por hora</option><option value="BIWEEKLY">Quincenal</option></select></label>
+    </div>
+    <label class="field"><span>LinkedIn</span><input formControlName="linkedinUrl"></label>
+    <label class="field"><span>Portafolio</span><input formControlName="portfolioUrl"></label>
+    <label class="flex gap-2"><input type="checkbox" formControlName="openToWork"> Estoy buscando empleo</label>
+    <button class="btn btn-primary w-fit" type="submit">Guardar perfil</button>
+  </form>
+  <section class="card grid gap-3 p-4">
+    <h2 class="text-2xl">Currículum PDF</h2>
+    <input type="file" accept="application/pdf" (change)="upload($event)" aria-label="Subir currículum PDF">
+    @for (resume of profile()?.resumes ?? []; track resume.id) {
+      <div class="flex flex-wrap items-center gap-2">
+        <span>{{ resume.filename }} @if (resume.primary) { <strong>(principal)</strong> }</span>
+        <button class="btn btn-ghost" type="button" (click)="download(resume.id)">Descargar</button>
+        <button class="btn btn-ghost" type="button" (click)="primary(resume.id)">Hacer principal</button>
+        <button class="btn btn-ghost" type="button" (click)="remove('/api/candidate/resumes/' + resume.id)">Eliminar</button>
+      </div>
+    }
+  </section>
+  <section class="card grid gap-3 p-4">
+    <h2 class="text-2xl">Experiencia</h2>
+    @for (item of profile()?.experiences ?? []; track item.id) {
+      <p>{{ item.jobTitle }} · {{ item.companyName }} <button type="button" (click)="remove('/api/candidate/experiences/' + item.id)">Eliminar</button></p>
+    }
+    <form class="grid gap-2" [formGroup]="experienceForm" (ngSubmit)="addExperience()">
+      <input placeholder="Cargo" formControlName="jobTitle"><input placeholder="Empresa" formControlName="companyName">
+      <input placeholder="Lugar" formControlName="location"><input type="date" formControlName="startDate" aria-label="Inicio"><input type="date" formControlName="endDate" aria-label="Fin">
+      <label><input type="checkbox" formControlName="currentJob"> Trabajo actual</label>
+      <textarea formControlName="description" placeholder="Descripción"></textarea>
+      <button class="btn btn-navy w-fit" type="submit">Añadir experiencia</button>
+    </form>
+  </section>
+  <section class="card grid gap-3 p-4">
+    <h2 class="text-2xl">Formación</h2>
+    @for (item of profile()?.education ?? []; track item.id) { <p>{{ item.degree }} · {{ item.institution }} <button type="button" (click)="remove('/api/candidate/education/' + item.id)">Eliminar</button></p> }
+    <form class="grid gap-2" [formGroup]="educationForm" (ngSubmit)="addEducation()">
+      <input placeholder="Institución" formControlName="institution"><input placeholder="Título" formControlName="degree"><input placeholder="Área" formControlName="fieldOfStudy">
+      <input type="number" min="1950" max="2100" placeholder="Año de inicio" formControlName="startYear" aria-label="Año de inicio"><input type="number" min="1950" max="2100" placeholder="Año de fin" formControlName="endYear" aria-label="Año de fin">
+      <button class="btn btn-navy w-fit" type="submit">Añadir formación</button>
+    </form>
+  </section>
+  <section class="card grid gap-3 p-4">
+    <h2 class="text-2xl">Cursos y certificaciones</h2>
+    @for (item of profile()?.certifications ?? []; track item.id) { <p>{{ item.name }} · {{ item.issuer }} <button type="button" (click)="remove('/api/candidate/certifications/' + item.id)">Eliminar</button></p> }
+    <form class="grid gap-2" [formGroup]="certForm" (ngSubmit)="addCert()">
+      <input placeholder="Nombre" formControlName="name"><input placeholder="Emisor" formControlName="issuer"><input placeholder="Año" formControlName="issueYear"><input placeholder="Enlace" formControlName="credentialUrl">
+      <button class="btn btn-navy w-fit" type="submit">Añadir certificación</button>
+    </form>
+  </section>
+  <section class="card grid gap-3 p-4">
+    <h2 class="text-2xl">Habilidades</h2>
+    <div class="flex flex-wrap gap-2">@for (skill of skills(); track skill.id) {
+      <label class="chip"><input class="mr-1" type="checkbox" [checked]="(profile()?.skills ?? []).some(item => item.id === skill.id)" (change)="toggleSkill(skill.id, $any($event.target).checked)">{{ skill.name }}</label>
+    }</div>
+  </section>
+  <section class="card grid gap-3 p-4">
+    <h2 class="text-2xl">Idiomas</h2>
+    @for (item of profile()?.languages ?? []; track item.id) { <p>{{ item.language }} · {{ label(item.proficiency) }} <button type="button" (click)="remove('/api/candidate/languages/' + item.id)">Eliminar</button></p> }
+    <form class="grid gap-2" [formGroup]="languageForm" (ngSubmit)="addLanguage()">
+      <input placeholder="Idioma" formControlName="language">
+      <select formControlName="proficiency"><option value="BASIC">Básico</option><option value="INTERMEDIATE">Intermedio</option><option value="ADVANCED">Avanzado</option><option value="NATIVE">Nativo</option></select>
+      <button class="btn btn-navy w-fit" type="submit">Añadir idioma</button>
+    </form>
+  </section>
+  <button class="btn btn-ghost w-fit text-danger" type="button" (click)="deleteAccount()">Eliminar mi cuenta y mis datos</button>
+</section>

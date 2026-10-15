@@ -1,0 +1,53 @@
+<div class="wrap grid gap-6 py-8 lg:grid-cols-[280px_1fr]">
+  <form class="card grid h-fit gap-3 p-4" [formGroup]="form" (ngSubmit)="apply(0)">
+    <h1 class="text-2xl">Buscar empleos</h1>
+    <label class="field"><span>Palabra clave</span><input formControlName="q"></label>
+    <label class="field"><span>Provincia</span>
+      <select formControlName="provinceId" (change)="onProvince()"><option value="">Todas</option>@for (item of provinces(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }</select>
+    </label>
+    <label class="field"><span>Municipio</span>
+      <select formControlName="municipalityId"><option value="">Todos</option>@for (item of municipalities(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }</select>
+    </label>
+    <label class="field"><span>Categoría</span>
+      <select formControlName="categoryId"><option value="">Todas</option>@for (item of categories(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }</select>
+    </label>
+    <label class="field"><span>Contrato</span>
+      <select formControlName="contractType"><option value="">Todos</option><option value="INDEFINITE">Indefinido</option><option value="TEMPORARY">Temporal</option><option value="PROJECT">Por proyecto</option><option value="INTERNSHIP">Pasantía</option><option value="FREELANCE">Freelance</option></select>
+    </label>
+    <label class="field"><span>Modalidad</span>
+      <select formControlName="workMode"><option value="">Todas</option><option value="ONSITE">Presencial</option><option value="HYBRID">Híbrida</option><option value="REMOTE">Remota</option></select>
+    </label>
+    <label class="field"><span>Jornada</span>
+      <select formControlName="workSchedule"><option value="">Todas</option><option value="FULL_TIME">Tiempo completo</option><option value="PART_TIME">Medio tiempo</option><option value="TEMPORARY">Temporal</option><option value="HOURLY">Por horas</option></select>
+    </label>
+    <label class="field"><span>Experiencia</span>
+      <select formControlName="experienceLevel"><option value="">Cualquiera</option><option value="NONE">Sin experiencia</option><option value="JUNIOR">Junior</option><option value="MID">Intermedio</option><option value="SENIOR">Senior</option><option value="LEAD">Liderazgo</option></select>
+    </label>
+    <label class="field"><span>Salario desde (RD$ u otra moneda publicada)</span><input type="number" min="0" formControlName="salaryMin"></label>
+    <label class="field"><span>Salario hasta</span><input type="number" min="0" formControlName="salaryMax"></label>
+    <label class="field"><span>Publicación</span>
+      <select formControlName="publishedWithinDays"><option value="">Cualquier fecha</option><option value="1">Últimas 24 horas</option><option value="7">Últimos 7 días</option><option value="30">Últimos 30 días</option></select>
+    </label>
+    <label class="field"><span>Orden</span>
+      <select formControlName="sort"><option value="recent">Más recientes</option><option value="salary">Mayor salario publicado</option></select>
+    </label>
+    <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" formControlName="acceptsNoExperience"> Acepta personas sin experiencia</label>
+    <button class="btn btn-primary" type="submit">Aplicar filtros</button>
+  </form>
+  <section>
+    @if (loading()) { <p aria-live="polite">Cargando ofertas…</p> }
+    @if (error()) { <p class="alert" role="alert">{{ error() }}</p> }
+    @if (result(); as page) {
+      <p class="mb-3 text-sm text-muted">{{ page.totalElements }} ofertas</p>
+      @if (page.content.length === 0) {
+        <div class="card p-6"><h2 class="text-xl">No hay ofertas con estos filtros</h2><p class="mt-2 text-muted">Prueba con otra provincia o quita algún criterio. Si el listado está vacío, es porque aún no hay vacantes reales publicadas.</p></div>
+      } @else {
+        <div class="grid gap-3">@for (job of page.content; track job.id) { <app-job-card [job]="job" /> }</div>
+        <div class="mt-4 flex gap-2">
+          <button class="btn btn-ghost" type="button" [disabled]="page.page === 0" (click)="apply(page.page - 1)">Anterior</button>
+          <button class="btn btn-ghost" type="button" [disabled]="page.page + 1 >= page.totalPages" (click)="apply(page.page + 1)">Siguiente</button>
+        </div>
+      }
+    }
+  </section>
+</div>

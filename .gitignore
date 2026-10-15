@@ -1,0 +1,11 @@
+.env
+.env.local
+*.log
+
+backend/target/
+backend/data/
+data/
+
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/

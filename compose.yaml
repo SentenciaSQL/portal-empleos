@@ -1,0 +1,81 @@
+# Desarrollo local. La contraseña de Postgres usa un valor de respaldo solo para arrancar
+# sin un archivo .env. Cámbiala en .env antes de exponer el equipo a una red compartida.
+services:
+  db:
+    image: postgres:16.15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-empleord}
+      POSTGRES_USER: ${DATABASE_USER:-empleord}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-empleord}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-empleord} -d ${DATABASE_NAME:-empleord}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      DATABASE_URL: jdbc:postgresql://db:5432/${DATABASE_NAME:-empleord}
+      DATABASE_USER: ${DATABASE_USER:-empleord}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-empleord}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-empleord-jwt-secret-32}
+      FILE_SIGNING_SECRET: ${FILE_SIGNING_SECRET:-dev-only-change-me-file-signing-secret}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8088}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost:8088}
+      API_PUBLIC_URL: ${API_PUBLIC_URL:-http://localhost:8088}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      MAIL_ENABLED: ${MAIL_ENABLED:-false}
+      MAIL_LOG_LINKS: ${MAIL_LOG_LINKS:-true}
+      MAIL_FROM: ${MAIL_FROM:-noreply@empleord.do}
+      APP_PRODUCTION: "false"
+      STORAGE_PATH: /app/data/uploads
+    volumes:
+      - uploads:/app/data/uploads
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api-health:
+    image: curlimages/curl:8.22.0
+    network_mode: "service:api"
+    entrypoint: ["sleep", "infinity"]
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: 32M
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8088:8080"
+    depends_on:
+      api-health:
+        condition: service_healthy
+
+volumes:
+  db-data:
+  uploads:
