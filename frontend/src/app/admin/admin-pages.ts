@@ -18,7 +18,7 @@ import { Envelope, Page, Plan } from '../core/models';
       <ul class="mt-2">@for (point of points(); track point.month) { <li>{{ point.month }}: {{ point.users }} {{ i18n.t('cuentas') }}</li> }</ul>
       <nav class="mt-6 flex flex-wrap gap-3">
         <a routerLink="/admin/usuarios">{{ i18n.t('Usuarios') }}</a><a routerLink="/admin/empresas">{{ i18n.t('Empresas') }}</a><a routerLink="/admin/ofertas">{{ i18n.t('Ofertas') }}</a>
-        <a routerLink="/admin/planes">{{ i18n.t('Planes') }}</a><a routerLink="/admin/reportes">{{ i18n.t('Reportes') }}</a><a routerLink="/admin/auditoria">{{ i18n.t('Auditoría') }}</a>
+        <a routerLink="/admin/planes">{{ i18n.t('Planes') }}</a><a routerLink="/admin/reportes">{{ i18n.t('Reportes') }}</a><a routerLink="/admin/auditoria">{{ i18n.t('Auditoría') }}</a><a routerLink="/admin/publicidad">{{ i18n.t('Publicidad') }}</a>
       </nav>
     </section>
   `,

@@ -37,12 +37,18 @@
   <section>
     @if (loading()) { <p aria-live="polite">{{ i18n.t('Cargando ofertas…') }}</p> }
     @if (error()) { <p class="alert" role="alert">{{ i18n.live(error()) }}</p> }
+    @if (categoryId()) { <app-ad-slot slotKey="category-content" /> }
     @if (result(); as page) {
       <p class="mb-3 text-sm text-muted">{{ page.totalElements }} {{ i18n.t('ofertas') }}</p>
       @if (page.content.length === 0) {
         <div class="card p-6"><h2 class="text-xl">{{ i18n.t('No hay ofertas con estos filtros') }}</h2><p class="mt-2 text-muted">{{ i18n.t('Prueba con otra provincia o quita algún criterio. Si el listado está vacío, es porque aún no hay vacantes reales publicadas.') }}</p></div>
       } @else {
-        <div class="grid gap-3">@for (job of page.content; track job.id) { <app-job-card [job]="job" /> }</div>
+        <div class="grid gap-3">
+          @for (job of page.content; track job.id; let index = $index) {
+            <app-job-card [job]="job" />
+            @if (index === 2 || (page.content.length < 3 && index === page.content.length - 1)) { <app-ad-slot slotKey="job-search-inline" /> }
+          }
+        </div>
         <div class="mt-4 flex gap-2">
           <button class="btn btn-ghost" type="button" [disabled]="page.page === 0" (click)="apply(page.page - 1)">{{ i18n.t('Anterior') }}</button>
           <button class="btn btn-ghost" type="button" [disabled]="page.page + 1 >= page.totalPages" (click)="apply(page.page + 1)">{{ i18n.t('Siguiente') }}</button>

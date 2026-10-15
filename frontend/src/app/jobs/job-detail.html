@@ -19,6 +19,7 @@
       @if (detail.requirements) { <h2 class="mt-6 text-2xl">{{ i18n.t('Requisitos') }}</h2><p class="mt-2 whitespace-pre-line leading-7">{{ detail.requirements }}</p> }
       @if (detail.skills.length) { <h2 class="mt-6 text-2xl">{{ i18n.t('Habilidades') }}</h2><div class="mt-2 flex flex-wrap gap-2">@for (skill of detail.skills; track skill) { <span class="chip">{{ skill }}</span> }</div> }
       <p class="mt-6 text-sm text-muted">{{ detail.viewCount }} {{ i18n.t('visualizaciones') }}</p>
+      <app-ad-slot slotKey="job-detail-bottom" />
     </div>
     <aside class="grid h-fit gap-4">
       @if (message()) { <p class="ok" role="status">{{ i18n.live(message()) }}</p> }

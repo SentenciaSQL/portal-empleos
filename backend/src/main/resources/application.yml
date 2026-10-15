@@ -68,3 +68,14 @@ app:
     client-id: ${PAYPAL_CLIENT_ID:}
     client-secret: ${PAYPAL_CLIENT_SECRET:}
     webhook-id: ${PAYPAL_WEBHOOK_ID:}
+  adsense:
+    enabled: ${ADSENSE_ENABLED:false}
+    publisher-id: ${ADSENSE_PUBLISHER_ID:}
+    slots:
+      home-top: ${ADSENSE_SLOT_HOME_TOP:}
+      home-feed: ${ADSENSE_SLOT_HOME_FEED:}
+      job-search-inline: ${ADSENSE_SLOT_JOB_SEARCH_INLINE:}
+      job-detail-bottom: ${ADSENSE_SLOT_JOB_DETAIL_BOTTOM:}
+      category-content: ${ADSENSE_SLOT_CATEGORY_CONTENT:}
+      info-content: ${ADSENSE_SLOT_INFO_CONTENT:}
+      resource-content: ${ADSENSE_SLOT_RESOURCE_CONTENT:}

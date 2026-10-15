@@ -33,5 +33,6 @@ export const routes: Routes = [
   { path: 'admin/planes', canActivate: [authGuard, roleGuard('ADMIN')], loadComponent: () => import('./admin/admin-pages').then((m) => m.AdminPlans) },
   { path: 'admin/reportes', canActivate: [authGuard, roleGuard('ADMIN')], loadComponent: () => import('./admin/admin-pages').then((m) => m.AdminReports) },
   { path: 'admin/auditoria', canActivate: [authGuard, roleGuard('ADMIN')], loadComponent: () => import('./admin/admin-pages').then((m) => m.AdminAudit) },
+  { path: 'admin/publicidad', canActivate: [authGuard, roleGuard('ADMIN')], loadComponent: () => import('./admin/ads-admin').then((m) => m.AdminAdsPage) },
   { path: '**', redirectTo: '' },
 ];

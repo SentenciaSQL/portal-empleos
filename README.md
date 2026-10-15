@@ -48,6 +48,32 @@ Para activarlo: crea una aplicación REST en el sandbox de PayPal, copia el clie
 
 La empresa dueña contrata desde `/empresa/suscripcion`. Un reclutador puede ver el estado, no contratar. Un administrador puede asignar un plan sin pasar por PayPal; esa asignación no cancela una suscripción que ya exista en PayPal.
 
+## Publicidad
+
+Los anuncios quedan apagados hasta configurar Google AdSense. Sin Publisher ID válido no se carga el script, no se reserva espacio y `ads.txt` no anuncia un editor.
+
+Hacen falta las dos condiciones: `ADSENSE_ENABLED=true` y la opción global del panel en `/admin/publicidad`. El Publisher ID (`ca-pub-` y 16 dígitos) y los identificadores de bloque pueden venir del entorno o del panel. El entorno tiene prioridad cuando trae un valor válido. Esos identificadores son públicos; no hace falta una clave secreta en el frontend.
+
+El script de AdSense se inserta una sola vez, y solo después de que la persona acepte en el aviso o en la página de privacidad. Rechazar no carga el script. No hay anuncios en el acceso, el registro, la postulación, el pago ni los paneles de gestión.
+
+Espacios: `home-top`, `home-feed`, `job-search-inline`, `job-detail-bottom`, `category-content`, `info-content`. `resource-content` queda preparado para una sección editorial que todavía no existe y no se muestra.
+
+Las vistas del panel cuentan cuántas veces el espacio entró en pantalla. No son ingresos, clics ni RPM. Esos informes se consultan en AdSense.
+
+Para asociar el dominio: en AdSense agrega el sitio, publica `https://<tu-dominio>/ads.txt` (el portal lo genera cuando la publicidad está activa) y pide la revisión cuando el sitio cumpla las políticas del programa. Hasta entonces los espacios siguen vacíos.
+
+```bash
+ADSENSE_ENABLED=false
+ADSENSE_PUBLISHER_ID=
+ADSENSE_SLOT_HOME_TOP=
+ADSENSE_SLOT_HOME_FEED=
+ADSENSE_SLOT_JOB_SEARCH_INLINE=
+ADSENSE_SLOT_JOB_DETAIL_BOTTOM=
+ADSENSE_SLOT_CATEGORY_CONTENT=
+ADSENSE_SLOT_INFO_CONTENT=
+ADSENSE_SLOT_RESOURCE_CONTENT=
+```
+
 ## Cuentas de demostración
 
 Contraseña de las tres: `Demo-EmpleoRD-2026!`
