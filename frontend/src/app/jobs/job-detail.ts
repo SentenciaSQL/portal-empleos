@@ -7,10 +7,11 @@ import { AuthService } from '../core/auth.service';
 import { I18nService } from '../core/i18n.service';
 import { Envelope, JobDetail } from '../core/models';
 import { AdSlotComponent } from '../ads/ad-slot';
+import { RichTextView, richTextPlain } from './rich-text';
 
 @Component({
   selector: 'app-job-detail',
-  imports: [ReactiveFormsModule, RouterLink, AdSlotComponent],
+  imports: [ReactiveFormsModule, RouterLink, AdSlotComponent, RichTextView],
   templateUrl: './job-detail.html',
 })
 export class JobDetailPage {
@@ -78,13 +79,17 @@ export class JobDetailPage {
     });
   }
 
+  text(value: string | null | undefined): string {
+    return richTextPlain(value);
+  }
+
   private load(slug: string): void {
     this.http.get<Envelope<JobDetail>>(`/api/jobs/${slug}`).subscribe({
       next: (res) => {
         this.job.set(res.data);
         const title = `${res.data.card.title} en ${res.data.card.companyName} | EmpleoRD`;
         this.title.setTitle(title);
-        const description = res.data.description.slice(0, 160);
+        const description = richTextPlain(res.data.description).slice(0, 160);
         this.meta.updateTag({ name: 'description', content: description });
         this.meta.updateTag({ property: 'og:title', content: title });
         this.meta.updateTag({ property: 'og:description', content: description });

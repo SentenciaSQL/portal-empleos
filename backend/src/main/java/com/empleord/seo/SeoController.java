@@ -1,6 +1,7 @@
 package com.empleord.seo;
 
 import com.empleord.common.ApiException;
+import com.empleord.common.HtmlSanitizer;
 import com.empleord.config.AppProperties;
 import com.empleord.domain.entity.Company;
 import com.empleord.domain.entity.Job;
@@ -185,10 +186,7 @@ public class SeoController {
     }
 
     private String shorten(String value) {
-        if (value == null) {
-            return "";
-        }
-        String clean = value.replaceAll("\\s+", " ").trim();
+        String clean = HtmlSanitizer.plain(value);
         return clean.length() > 220 ? clean.substring(0, 217) + "..." : clean;
     }
 

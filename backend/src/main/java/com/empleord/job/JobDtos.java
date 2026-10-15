@@ -23,7 +23,7 @@ public final class JobDtos {
 
     public record JobRequest(
             @NotBlank @Size(max = 180) String title,
-            @NotBlank @Size(max = 8000) String description,
+            @NotBlank(message = "La descripción es obligatorio.") @Size(max = 8000) String description,
             @Size(max = 8000) String requirements,
             @Size(max = 8000) String responsibilities,
             @NotNull Integer categoryId,
