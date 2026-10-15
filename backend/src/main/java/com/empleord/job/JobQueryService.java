@@ -61,7 +61,35 @@ public class JobQueryService {
         Instant now = Instant.now();
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 50);
-        Specification<Job> spec = (root, query, cb) -> {
+        Page<Job> result = jobs.findAll(openJobs(q, provinceId, municipalityId, categoryId, contractType, workMode, workSchedule,
+                experienceLevel, salaryMin, salaryMax, publishedWithinDays, acceptsNoExperience, null, sort, now), PageRequest.of(safePage, safeSize));
+        return toCards(result, now);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Job> findPublishedForAlert(String q, Integer provinceId, Integer municipalityId, Integer categoryId,
+                                           ContractType contractType, WorkMode workMode, BigDecimal salaryMin, BigDecimal salaryMax,
+                                           Instant publishedAfter, int limit) {
+        Instant now = Instant.now();
+        return jobs.findAll(openJobs(q, provinceId, municipalityId, categoryId, contractType, workMode, null, null,
+                salaryMin, salaryMax, null, null, publishedAfter, "recent", now), PageRequest.of(0, Math.min(Math.max(limit, 1), 20))).getContent();
+    }
+
+    private PageResponse<JobDtos.JobCard> toCards(Page<Job> result, Instant now) {
+        List<java.util.UUID> ids = result.getContent().stream().map(Job::getId).toList();
+        List<java.util.UUID> featuredIds = ids.isEmpty() ? List.of() : featuredJobs.findActiveJobIds(ids, now);
+        List<JobDtos.JobCard> cards = result.getContent().stream()
+                .map(job -> mapper.toCard(job, featuredIds.contains(job.getId()), now))
+                .toList();
+        return PageResponse.of(cards, result.getNumber(), result.getSize(), result.getTotalElements());
+    }
+
+    private Specification<Job> openJobs(String q, Integer provinceId, Integer municipalityId, Integer categoryId,
+                                        ContractType contractType, WorkMode workMode, WorkSchedule workSchedule,
+                                        ExperienceLevel experienceLevel, BigDecimal salaryMin, BigDecimal salaryMax,
+                                        Integer publishedWithinDays, Boolean acceptsNoExperience, Instant publishedAfter,
+                                        String sort, Instant now) {
+        return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("status"), JobStatus.PUBLISHED));
             predicates.add(cb.isNull(root.get("deletedAt")));
@@ -100,6 +128,9 @@ public class JobQueryService {
             if (publishedWithinDays != null && publishedWithinDays > 0) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("publishedAt"), now.minus(publishedWithinDays, ChronoUnit.DAYS)));
             }
+            if (publishedAfter != null) {
+                predicates.add(cb.greaterThan(root.get("publishedAt"), publishedAfter));
+            }
             if (salaryMin != null) {
                 predicates.add(cb.or(
                         cb.isTrue(root.get("salaryNegotiable")),
@@ -128,13 +159,6 @@ public class JobQueryService {
             }
             return cb.and(predicates.toArray(Predicate[]::new));
         };
-        Page<Job> result = jobs.findAll(spec, PageRequest.of(safePage, safeSize));
-        List<java.util.UUID> ids = result.getContent().stream().map(Job::getId).toList();
-        List<java.util.UUID> featuredIds = ids.isEmpty() ? List.of() : featuredJobs.findActiveJobIds(ids, now);
-        List<JobDtos.JobCard> cards = result.getContent().stream()
-                .map(job -> mapper.toCard(job, featuredIds.contains(job.getId()), now))
-                .toList();
-        return PageResponse.of(cards, result.getNumber(), result.getSize(), result.getTotalElements());
     }
 
     @Transactional(readOnly = true)

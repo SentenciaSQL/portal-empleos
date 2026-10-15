@@ -23,6 +23,19 @@ public class ProductionGuard {
         if (!properties.isCookieSecure()) {
             throw new IllegalStateException("COOKIE_SECURE debe ser true en producción.");
         }
+        if (properties.getPaypal().isEnabled()) {
+            AppProperties.Paypal paypal = properties.getPaypal();
+            if (blank(paypal.getClientId()) || blank(paypal.getClientSecret()) || blank(paypal.getWebhookId())) {
+                throw new IllegalStateException("PAYPAL_ENABLED exige PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET y PAYPAL_WEBHOOK_ID.");
+            }
+            if (!"live".equalsIgnoreCase(paypal.getMode())) {
+                throw new IllegalStateException("En producción PAYPAL_MODE debe ser live.");
+            }
+        }
+    }
+
+    private boolean blank(String value) {
+        return value == null || value.isBlank();
     }
 
     private boolean unsafe(String secret) {

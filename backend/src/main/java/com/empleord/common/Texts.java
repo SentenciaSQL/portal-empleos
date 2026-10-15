@@ -1,0 +1,182 @@
+package com.empleord.common;
+
+import org.springframework.context.i18n.LocaleContextHolder;
+
+import java.util.Locale;
+import java.util.Map;
+
+public final class Texts {
+
+    private static final Map<String, String> ENGLISH = Map.ofEntries(
+            Map.entry("Debes iniciar sesión.", "You need to sign in."),
+            Map.entry("No tienes permiso para esta acción.", "You do not have permission for this action."),
+            Map.entry("Revisa los datos del formulario.", "Check the form and try again."),
+            Map.entry("No se pudo leer la solicitud.", "The request could not be read."),
+            Map.entry("El archivo supera el tamaño permitido.", "The file is larger than the allowed size."),
+            Map.entry("Ocurrió un error interno. Inténtalo de nuevo.", "Something went wrong. Try again."),
+            Map.entry("Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.", "Too many requests. Wait a moment and try again."),
+            Map.entry("La oferta no existe.", "That job does not exist."),
+            Map.entry("La empresa no existe.", "That company does not exist."),
+            Map.entry("La provincia no existe.", "That province does not exist."),
+            Map.entry("El país no está disponible.", "That country is not available."),
+            Map.entry("El municipio no existe.", "That municipality does not exist."),
+            Map.entry("El municipio no pertenece a la provincia seleccionada.", "That municipality does not belong to the selected province."),
+            Map.entry("La categoría no existe.", "That category does not exist."),
+            Map.entry("Hay habilidades que no existen en el catálogo.", "Some skills are not in the catalog."),
+            Map.entry("El estado solicitado no está permitido.", "That status is not allowed."),
+            Map.entry("Esta oferta fue rechazada por moderación.", "Moderation rejected this job."),
+            Map.entry("Selecciona la provincia para una oferta presencial o híbrida en República Dominicana.", "Select a province for an on-site or hybrid job in the Dominican Republic."),
+            Map.entry("El salario mínimo no puede ser mayor que el máximo.", "The minimum salary cannot be higher than the maximum."),
+            Map.entry("El salario no puede ser negativo.", "The salary cannot be negative."),
+            Map.entry("La fecha de vencimiento debe ser posterior a la publicación.", "The expiration date must be after publication."),
+            Map.entry("Solo puedes activar o suspender una cuenta.", "You can only activate or suspend an account."),
+            Map.entry("La cuenta no existe.", "That account does not exist."),
+            Map.entry("No puedes cambiar el estado de un administrador desde aquí.", "You cannot change an administrator from here."),
+            Map.entry("Indica si la empresa queda verificada o rechazada.", "Say whether the company is verified or rejected."),
+            Map.entry("Estado de moderación no permitido.", "That moderation status is not allowed."),
+            Map.entry("El destaque debe durar entre 1 y 30 días.", "A featured placement must last between 1 and 30 days."),
+            Map.entry("Solo se puede destacar una oferta publicada.", "Only a published job can be featured."),
+            Map.entry("El plan no existe.", "That plan does not exist."),
+            Map.entry("Indica si el reporte queda revisado o descartado.", "Mark the report reviewed or dismissed."),
+            Map.entry("El reporte no existe.", "That report does not exist."),
+            Map.entry("La empresa no tiene logotipo.", "This company has no logo."),
+            Map.entry("Esa persona ya pertenece a una empresa.", "That person already belongs to a company."),
+            Map.entry("Esta oferta no acepta postulaciones.", "This job is not accepting applications."),
+            Map.entry("Ya enviaste una postulación a esta oferta.", "You already applied to this job."),
+            Map.entry("La postulación no existe.", "That application does not exist."),
+            Map.entry("No puedes modificar esta postulación.", "You cannot change this application."),
+            Map.entry("Esta postulación ya no se puede retirar.", "This application can no longer be withdrawn."),
+            Map.entry("Los filtros por experiencia, habilidades y formación están incluidos en el plan Profesional.", "Experience, skill, and education filters are part of the Professional plan."),
+            Map.entry("La persona candidata retiró esta postulación.", "The candidate withdrew this application."),
+            Map.entry("Esta postulación no tiene currículum.", "This application has no résumé."),
+            Map.entry("Puedes guardar hasta 3 currículums. Elimina uno antes de subir otro.", "You can keep up to 3 résumés. Delete one before uploading another."),
+            Map.entry("Este currículum ya se usó en una postulación y no puede eliminarse.", "This résumé was used in an application and cannot be deleted."),
+            Map.entry("El currículum no existe.", "That résumé does not exist."),
+            Map.entry("No puedes usar este currículum.", "You cannot use this résumé."),
+            Map.entry("Sube un currículum en PDF antes de postularte.", "Upload a PDF résumé before applying."),
+            Map.entry("El enlace del archivo no es válido.", "That file link is not valid."),
+            Map.entry("No tienes autorización para ver este currículum.", "You are not allowed to view this résumé."),
+            Map.entry("El enlace del archivo expiró.", "That file link expired."),
+            Map.entry("El idioma no existe.", "That language does not exist."),
+            Map.entry("No puedes modificar este idioma.", "You cannot change this language."),
+            Map.entry("El perfil de candidato no existe.", "The candidate profile does not exist."),
+            Map.entry("La fecha de salida no puede ser anterior al inicio.", "The end date cannot be before the start date."),
+            Map.entry("La experiencia no existe.", "That experience does not exist."),
+            Map.entry("No puedes modificar esta experiencia.", "You cannot change this experience."),
+            Map.entry("La formación no existe.", "That education record does not exist."),
+            Map.entry("No puedes modificar esta formación.", "You cannot change this education record."),
+            Map.entry("La certificación no existe.", "That certification does not exist."),
+            Map.entry("No puedes modificar esta certificación.", "You cannot change this certification."),
+            Map.entry("No perteneces a una empresa.", "You do not belong to a company."),
+            Map.entry("Solo quien administra la empresa puede hacer este cambio.", "Only the company owner can make this change."),
+            Map.entry("Esta oferta no pertenece a tu empresa.", "This job does not belong to your company."),
+            Map.entry("Selecciona una cuenta de candidato o de empresa.", "Choose a candidate or company account."),
+            Map.entry("Ya existe una cuenta con ese correo.", "An account with that email already exists."),
+            Map.entry("Correo o contraseña incorrectos.", "The email or password is incorrect."),
+            Map.entry("Tu cuenta está suspendida.", "Your account is suspended."),
+            Map.entry("Debes verificar tu correo antes de entrar.", "Verify your email before signing in."),
+            Map.entry("La sesión expiró.", "Your session expired."),
+            Map.entry("El enlace de verificación no es válido.", "That verification link is not valid."),
+            Map.entry("El enlace de verificación venció. Solicita otro.", "That verification link expired. Request another one."),
+            Map.entry("El enlace para restablecer la contraseña no es válido.", "That password reset link is not valid."),
+            Map.entry("El enlace venció. Solicita otro.", "That link expired. Request another one."),
+            Map.entry("El rol no existe.", "That role does not exist."),
+            Map.entry("No existe el plan gratuito.", "The free plan does not exist."),
+            Map.entry("La empresa no tiene un plan asignado.", "This company has no plan assigned."),
+            Map.entry("El plan no está disponible.", "That plan is not available."),
+            Map.entry("La empresa no tiene suscripción.", "This company has no subscription."),
+            Map.entry("El archivo debe ser un PDF válido.", "The file must be a valid PDF."),
+            Map.entry("El logotipo debe ser PNG, JPG o WEBP.", "The logo must be PNG, JPG, or WEBP."),
+            Map.entry("Selecciona un archivo.", "Select a file."),
+            Map.entry("No se pudo leer el archivo.", "The file could not be read."),
+            Map.entry("El archivo no está disponible.", "That file is not available."),
+            Map.entry("Ruta de archivo no válida.", "That file path is not valid."),
+            Map.entry("La notificación no existe.", "That notification does not exist."),
+            Map.entry("No puedes modificar esta notificación.", "You cannot change this notification."),
+            Map.entry("Los enlaces deben comenzar con http:// o https:// y tener menos de 255 caracteres.", "Links must start with http:// or https:// and be shorter than 255 characters."),
+            Map.entry("La pasarela de pago todavía no está configurada.", "The payment gateway is not configured yet."),
+            Map.entry("Selecciona el tipo de cuenta", "Select the account type"),
+            Map.entry("El correo es obligatorio", "Email is required"),
+            Map.entry("Ingresa un correo válido", "Enter a valid email"),
+            Map.entry("La contraseña es obligatoria", "Password is required"),
+            Map.entry("La contraseña debe tener entre 8 y 72 caracteres, con letras y números", "Use 8 to 72 characters, with letters and numbers"),
+            Map.entry("El nombre es obligatorio", "First name is required"),
+            Map.entry("El apellido es obligatorio", "Last name is required"),
+            Map.entry("El enlace no es válido", "That link is not valid"),
+            Map.entry("Cuenta creada. Revisa tu correo para confirmarla.", "Account created. Check your email to confirm it."),
+            Map.entry("Sesión cerrada.", "You are signed out."),
+            Map.entry("Correo confirmado. Ya puedes entrar.", "Email confirmed. You can sign in."),
+            Map.entry("Si la cuenta existe y aún no está confirmada, enviamos un nuevo enlace.", "If the account exists and is not confirmed, we sent a new link."),
+            Map.entry("Si la cuenta existe, enviamos instrucciones para restablecer la contraseña.", "If the account exists, we sent password reset instructions."),
+            Map.entry("Contraseña actualizada. Ya puedes entrar.", "Password updated. You can sign in."),
+            Map.entry("Notificación leída.", "Notification marked as read."),
+            Map.entry("Notificaciones leídas.", "Notifications marked as read."),
+            Map.entry("Recibimos el reporte. Lo revisaremos.", "We received the report and will review it."),
+            Map.entry("Experiencia eliminada.", "Experience removed."),
+            Map.entry("Formación eliminada.", "Education removed."),
+            Map.entry("Certificación eliminada.", "Certification removed."),
+            Map.entry("Idioma eliminado.", "Language removed."),
+            Map.entry("Currículum eliminado.", "Résumé removed."),
+            Map.entry("Currículum principal actualizado.", "Primary résumé updated."),
+            Map.entry("Postulación retirada.", "Application withdrawn."),
+            Map.entry("Oferta guardada.", "Job saved."),
+            Map.entry("Oferta quitada de guardadas.", "Job removed from saved."),
+            Map.entry("Tu cuenta y tus datos personales fueron eliminados.", "Your account and personal data were deleted."),
+            Map.entry("Logotipo actualizado.", "Logo updated."),
+            Map.entry("Estado de la cuenta actualizado.", "Account status updated."),
+            Map.entry("Verificación actualizada.", "Verification updated."),
+            Map.entry("Plan actualizado.", "Plan updated."),
+            Map.entry("Oferta actualizada.", "Job updated."),
+            Map.entry("Oferta destacada.", "Job featured."),
+            Map.entry("Reporte actualizado.", "Report updated."),
+            Map.entry("El nombre es obligatorio.", "The name is required."),
+            Map.entry("El apellido es obligatorio.", "The last name is required."),
+            Map.entry("El nombre de la empresa es obligatorio.", "The company name is required."),
+            Map.entry("El cargo es obligatorio.", "The job title is required."),
+            Map.entry("La descripción es obligatorio.", "The description is required."),
+            Map.entry("La alerta no existe.", "That alert does not exist."),
+            Map.entry("No puedes modificar esta alerta.", "You cannot change this alert."),
+            Map.entry("Puedes tener hasta 10 alertas.", "You can keep up to 10 alerts."),
+            Map.entry("Indica al menos un criterio: palabra clave, lugar, categoría, modalidad, contrato o salario.", "Add at least one criterion: keyword, place, category, work mode, contract, or salary."),
+            Map.entry("La frecuencia no es válida.", "That frequency is not valid."),
+            Map.entry("El idioma de la interfaz no es válido.", "That interface language is not valid."),
+            Map.entry("Solo se puede contratar un plan de pago desde la pasarela.", "Only a paid plan can be purchased through the gateway."),
+            Map.entry("El pago no quedó confirmado por la pasarela.", "The gateway has not confirmed this payment."),
+            Map.entry("PayPal rechazó la solicitud de cobro.", "PayPal rejected the billing request."),
+            Map.entry("No se pudo contactar a PayPal.", "PayPal could not be reached."),
+            Map.entry("La firma del webhook no es válida.", "The webhook signature is not valid."),
+            Map.entry("Faltan credenciales de PayPal.", "PayPal credentials are missing."),
+            Map.entry("Idioma actualizado.", "Language updated."),
+            Map.entry("Alerta guardada.", "Alert saved."),
+            Map.entry("Alerta eliminada.", "Alert deleted."),
+            Map.entry("Solicitud de cancelación enviada. El plan sigue vigente hasta el fin del periodo ya pagado.", "Cancellation requested. The plan stays active until the end of the paid period."),
+            Map.entry("Ya estás en el plan gratuito.", "You are already on the free plan."),
+            Map.entry("Ya tienes este plan activo.", "You already have this plan active."),
+            Map.entry("Volviste al plan gratuito.", "You are back on the free plan."),
+            Map.entry("Se canceló la contratación pendiente. Sigues en el plan gratuito.", "The pending purchase was cancelled. You remain on the free plan."),
+            Map.entry("No se puede cancelar en PayPal porque la pasarela no está configurada.", "PayPal cannot cancel the subscription because the gateway is not configured."),
+            Map.entry("La suscripción quedó registrada. El plan se activará cuando PayPal confirme el pago.", "The subscription was registered. The plan activates when PayPal confirms the payment.")
+    );
+
+    private Texts() {
+    }
+
+    public static boolean english() {
+        return Locale.ENGLISH.getLanguage().equals(LocaleContextHolder.getLocale().getLanguage());
+    }
+
+    public static String of(String spanish) {
+        if (spanish == null || !english()) {
+            return spanish;
+        }
+        return ENGLISH.getOrDefault(spanish, spanish);
+    }
+
+    public static String choose(String spanish, String english) {
+        return english() ? english : spanish;
+    }
+
+    public static String forUser(String locale, String spanish, String english) {
+        return "en".equalsIgnoreCase(locale) ? english : spanish;
+    }
+}

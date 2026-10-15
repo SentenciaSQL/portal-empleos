@@ -1,6 +1,8 @@
 package com.empleord.domain.entity;
 
 import com.empleord.domain.AuditableEntity;
+import com.empleord.domain.enums.AlertFrequency;
+import com.empleord.domain.enums.ContractType;
 import com.empleord.domain.enums.WorkMode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,6 +19,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -45,9 +49,33 @@ public class JobAlert extends AuditableEntity {
     @JoinColumn(name = "category_id")
     private JobCategory category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "municipality_id")
+    private Municipality municipality;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "work_mode", length = 32)
     private WorkMode workMode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "contract_type", length = 32)
+    private ContractType contractType;
+
+    @Column(name = "salary_min", precision = 12, scale = 2)
+    private BigDecimal salaryMin;
+
+    @Column(name = "salary_max", precision = 12, scale = 2)
+    private BigDecimal salaryMax;
+
+    @Column(name = "salary_currency", nullable = false, length = 3)
+    private String salaryCurrency = "DOP";
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AlertFrequency frequency = AlertFrequency.DAILY;
+
+    @Column(name = "last_notified_at")
+    private Instant lastNotifiedAt;
 
     @Column(nullable = false)
     private boolean active = true;

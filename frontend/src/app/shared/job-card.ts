@@ -1,7 +1,7 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { JobCard } from '../core/models';
-import { formatDate, label, locationText, salaryText } from '../core/format';
+import { I18nService } from '../core/i18n.service';
 
 @Component({
   selector: 'app-job-card',
@@ -13,23 +13,20 @@ import { formatDate, label, locationText, salaryText } from '../core/format';
       </div>
       <div class="min-w-0 flex-1">
         <div class="flex flex-wrap items-center gap-2">
-          @if (job().featured) { <span class="chip">Destacada</span> }
-          @if (job().companyVerified) { <span class="chip">Empresa verificada</span> }
-          @if (!job().open) { <span class="chip">Cerrada</span> }
+          @if (job().featured) { <span class="chip">{{ i18n.t('Destacada') }}</span> }
+          @if (job().companyVerified) { <span class="chip">{{ i18n.t('Empresa verificada') }}</span> }
+          @if (!job().open) { <span class="chip">{{ i18n.t('Cerrada') }}</span> }
         </div>
         <h3 class="mt-1 text-xl"><a class="hover:text-accent" [routerLink]="['/empleos', job().slug]">{{ job().title }}</a></h3>
         <p class="text-sm"><a [routerLink]="['/empresas', job().companySlug]">{{ job().companyName }}</a></p>
-        <p class="mt-2 text-sm text-muted">{{ place() }} · {{ label(job().workMode) }} · {{ label(job().contractType) }}</p>
-        <p class="mt-1 text-sm font-semibold">{{ pay() }}</p>
-        <p class="mt-2 text-xs text-muted">{{ job().category }} · {{ formatDate(job().publishedAt) || 'Sin fecha de publicación' }}</p>
+        <p class="mt-2 text-sm text-muted">{{ i18n.place(job()) }} · {{ i18n.label(job().workMode) }} · {{ i18n.label(job().contractType) }}</p>
+        <p class="mt-1 text-sm font-semibold">{{ i18n.salary(job()) }}</p>
+        <p class="mt-2 text-xs text-muted">{{ job().category }} · {{ i18n.date(job().publishedAt) || i18n.t('Sin fecha de publicación') }}</p>
       </div>
     </article>
   `,
 })
 export class JobCardView {
   readonly job = input.required<JobCard>();
-  readonly label = label;
-  readonly formatDate = formatDate;
-  place = () => locationText(this.job());
-  pay = () => salaryText(this.job());
+  readonly i18n = inject(I18nService);
 }

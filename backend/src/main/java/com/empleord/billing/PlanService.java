@@ -1,6 +1,7 @@
 package com.empleord.billing;
 
 import com.empleord.common.ApiException;
+import com.empleord.common.Texts;
 import com.empleord.domain.entity.Company;
 import com.empleord.domain.entity.CompanySubscription;
 import com.empleord.domain.entity.SubscriptionPlan;
@@ -40,9 +41,22 @@ public class PlanService {
 
     @Transactional(readOnly = true)
     public SubscriptionPlan current(Company company) {
-        return subscriptions.findByCompanyId(company.getId())
-                .map(CompanySubscription::getPlan)
+        CompanySubscription subscription = subscriptions.findByCompanyId(company.getId())
                 .orElseThrow(() -> ApiException.notFound("La empresa no tiene un plan asignado."));
+        return effective(subscription);
+    }
+
+    private SubscriptionPlan effective(CompanySubscription subscription) {
+        Instant now = Instant.now();
+        boolean openEnded = subscription.getEndsAt() == null || subscription.getEndsAt().isAfter(now);
+        if (subscription.getStatus() == SubscriptionStatus.ACTIVE && openEnded) {
+            return subscription.getPlan();
+        }
+        if ((subscription.getStatus() == SubscriptionStatus.PAYMENT_FAILED || subscription.getStatus() == SubscriptionStatus.CANCELLED)
+                && subscription.getEndsAt() != null && subscription.getEndsAt().isAfter(now)) {
+            return subscription.getPlan();
+        }
+        return plans.findByCode("FREE").orElseThrow(() -> ApiException.notFound("No existe el plan gratuito."));
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +67,9 @@ public class PlanService {
         SubscriptionPlan plan = current(company);
         long active = jobs.countByCompanyIdAndStatusAndDeletedAtIsNull(company.getId(), JobStatus.PUBLISHED);
         if (active >= plan.getMaxActiveJobs()) {
-            throw ApiException.conflict("Tu plan " + plan.getName() + " permite " + plan.getMaxActiveJobs() + " ofertas activas. Pausa o cierra una oferta, o pide un cambio de plan.");
+            throw ApiException.conflict(Texts.choose(
+                    "Tu plan " + plan.getName() + " permite " + plan.getMaxActiveJobs() + " ofertas activas. Pausa o cierra una oferta, o pide un cambio de plan.",
+                    "Your " + plan.getName() + " plan allows " + plan.getMaxActiveJobs() + " active jobs. Pause or close one, or change the plan."));
         }
     }
 
@@ -66,6 +82,7 @@ public class PlanService {
         subscription.setPlan(plan);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         subscription.setStartedAt(Instant.now());
+        subscription.setEndsAt(null);
         return plan;
     }
 }

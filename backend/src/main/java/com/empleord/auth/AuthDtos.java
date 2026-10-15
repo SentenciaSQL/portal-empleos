@@ -61,7 +61,11 @@ public final class AuthDtos {
             boolean emailVerified,
             UUID companyId,
             String companyName,
-            String memberRole
+            String memberRole,
+            String locale
     ) {
+    }
+
+    public record LocaleRequest(@NotBlank @Pattern(regexp = "es|en") String locale) {
     }
 }

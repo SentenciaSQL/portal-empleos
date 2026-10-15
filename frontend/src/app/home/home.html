@@ -1,24 +1,24 @@
 <section class="bg-navy text-white">
   <div class="wrap grid gap-8 py-14 lg:grid-cols-[1.2fr_.8fr] lg:items-end">
     <div>
-      <p class="text-sm font-bold tracking-[.16em] text-amber-100">REPÚBLICA DOMINICANA</p>
-      <h1 class="mt-3 max-w-xl text-4xl leading-tight sm:text-5xl">Encuentra trabajo cerca de tu provincia o publica la vacante que necesitas cubrir.</h1>
-      <p class="mt-4 max-w-xl text-lg text-slate-200">Un portal claro para buscar por cargo, municipio y modalidad. Las empresas gestionan postulaciones; las personas conservan el control de su currículum.</p>
+      <p class="text-sm font-bold tracking-[.16em] text-amber-100">{{ i18n.t('REPÚBLICA DOMINICANA') }}</p>
+      <h1 class="mt-3 max-w-xl text-4xl leading-tight sm:text-5xl">{{ i18n.t('Encuentra trabajo cerca de tu provincia o publica la vacante que necesitas cubrir.') }}</h1>
+      <p class="mt-4 max-w-xl text-lg text-slate-200">{{ i18n.t('Un portal claro para buscar por cargo, municipio y modalidad. Las empresas gestionan postulaciones; las personas conservan el control de su currículum.') }}</p>
     </div>
     <form class="card grid gap-3 p-4 text-ink" [formGroup]="form" (ngSubmit)="search()">
-      <label class="field"><span>Palabra clave, cargo o empresa</span><input formControlName="q" placeholder="Ej. cajera, enfermería, contabilidad"></label>
-      <label class="field"><span>Provincia</span>
-        <select formControlName="provinceId"><option value="">Todas</option>@for (province of provinces(); track province.id) { <option [value]="province.id">{{ province.name }}</option> }</select>
+      <label class="field"><span>{{ i18n.t('Palabra clave, cargo o empresa') }}</span><input formControlName="q" [placeholder]="i18n.t('Ej. cajera, enfermería, contabilidad')"></label>
+      <label class="field"><span>{{ i18n.t('Provincia') }}</span>
+        <select formControlName="provinceId"><option value="">{{ i18n.t('Todas') }}</option>@for (province of provinces(); track province.id) { <option [value]="province.id">{{ province.name }}</option> }</select>
       </label>
-      <label class="field"><span>Categoría</span>
-        <select formControlName="categoryId"><option value="">Todas</option>@for (category of categories(); track category.id) { <option [value]="category.id">{{ category.name }}</option> }</select>
+      <label class="field"><span>{{ i18n.t('Categoría') }}</span>
+        <select formControlName="categoryId"><option value="">{{ i18n.t('Todas') }}</option>@for (category of categories(); track category.id) { <option [value]="category.id">{{ category.name }}</option> }</select>
       </label>
-      <button class="btn btn-primary" type="submit">Buscar empleos</button>
+      <button class="btn btn-primary" type="submit">{{ i18n.t('Buscar empleos') }}</button>
     </form>
   </div>
 </section>
 <section class="wrap py-10">
-  <h2 class="text-2xl">Sectores</h2>
+  <h2 class="text-2xl">{{ i18n.t('Sectores') }}</h2>
   <div class="mt-4 flex flex-wrap gap-2">
     @for (category of categories(); track category.id) {
       <a class="chip hover:bg-navy hover:text-white" [routerLink]="['/empleos']" [queryParams]="{ categoryId: category.id }">{{ category.name }}</a>
@@ -27,14 +27,14 @@
 </section>
 <section class="wrap pb-4">
   <div class="mb-4 flex items-end justify-between gap-4">
-    <h2 class="text-2xl">Ofertas publicadas</h2>
-    <a routerLink="/empleos">Ver todas</a>
+    <h2 class="text-2xl">{{ i18n.t('Ofertas publicadas') }}</h2>
+    <a routerLink="/empleos">{{ i18n.t('Ver todas') }}</a>
   </div>
   @if (jobs().length === 0) {
     <div class="card p-6">
-      <h3 class="text-xl">Todavía no hay ofertas activas</h3>
-      <p class="mt-2 text-muted">Cuando una empresa publique una vacante, aparecerá aquí. No mostramos empleos inventados.</p>
-      <a class="btn btn-navy mt-4" routerLink="/registro">Registrar empresa</a>
+      <h3 class="text-xl">{{ i18n.t('Todavía no hay ofertas activas') }}</h3>
+      <p class="mt-2 text-muted">{{ i18n.t('Cuando una empresa publique una vacante, aparecerá aquí. No mostramos empleos inventados.') }}</p>
+      <a class="btn btn-navy mt-4" routerLink="/registro">{{ i18n.t('Registrar empresa') }}</a>
     </div>
   } @else {
     <div class="grid gap-3">
@@ -43,7 +43,7 @@
   }
 </section>
 <section class="wrap grid gap-4 py-10 md:grid-cols-3">
-  <article class="card p-5"><h3 class="text-xl">1. Busca sin cuenta</h3><p class="mt-2 text-muted">Filtra por provincia, contrato, jornada y salario indicado por la empresa.</p></article>
-  <article class="card p-5"><h3 class="text-xl">2. Postula con tu PDF</h3><p class="mt-2 text-muted">Tu currículum solo lo ve la empresa a la que te postulas.</p></article>
-  <article class="card p-5"><h3 class="text-xl">3. Sigue el estado</h3><p class="mt-2 text-muted">Recibida, en revisión, entrevista u oferta: el historial queda en tu panel.</p></article>
+  <article class="card p-5"><h3 class="text-xl">{{ i18n.t('1. Busca sin cuenta') }}</h3><p class="mt-2 text-muted">{{ i18n.t('Filtra por provincia, contrato, jornada y salario indicado por la empresa.') }}</p></article>
+  <article class="card p-5"><h3 class="text-xl">{{ i18n.t('2. Postula con tu PDF') }}</h3><p class="mt-2 text-muted">{{ i18n.t('Tu currículum solo lo ve la empresa a la que te postulas.') }}</p></article>
+  <article class="card p-5"><h3 class="text-xl">{{ i18n.t('3. Sigue el estado') }}</h3><p class="mt-2 text-muted">{{ i18n.t('Recibida, en revisión, entrevista u oferta: el historial queda en tu panel.') }}</p></article>
 </section>
