@@ -23,4 +23,7 @@ public class Skill {
 
     @Column(nullable = false, length = 80)
     private String name;
+
+    @Column(name = "normalized_name", nullable = false, length = 80, unique = true)
+    private String normalizedName;
 }

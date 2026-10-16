@@ -7,10 +7,11 @@ import { Envelope, JobCard, Named, Page } from '../core/models';
 import { JobCardView } from '../shared/job-card';
 import { AdSlotComponent } from '../ads/ad-slot';
 import { I18nService } from '../core/i18n.service';
+import { SkillPicker } from './skill-picker';
 
 @Component({
   selector: 'app-job-list',
-  imports: [ReactiveFormsModule, JobCardView, AdSlotComponent],
+  imports: [ReactiveFormsModule, JobCardView, AdSlotComponent, SkillPicker],
   templateUrl: './job-list.html',
 })
 export class JobListPage {
@@ -29,6 +30,7 @@ export class JobListPage {
   readonly form = this.fb.nonNullable.group({
     q: '', provinceId: '', municipalityId: '', categoryId: '', contractType: '', workMode: '', workSchedule: '',
     experienceLevel: '', salaryMin: '', salaryMax: '', publishedWithinDays: '', acceptsNoExperience: false, sort: 'recent',
+    skillIds: [[] as number[]], skillMatch: ['ANY'],
   });
 
   constructor() {
@@ -51,6 +53,8 @@ export class JobListPage {
         publishedWithinDays: params.get('publishedWithinDays') ?? '',
         acceptsNoExperience: params.get('acceptsNoExperience') === 'true',
         sort: params.get('sort') ?? 'recent',
+        skillIds: this.skillIdsFrom(params.get('skillIds')),
+        skillMatch: params.get('skillMatch') === 'ALL' ? 'ALL' : 'ANY',
       }, { emitEvent: false });
       this.categoryId.set(params.get('categoryId') ?? '');
       if (this.form.controls.provinceId.value) this.loadMunicipalities(this.form.controls.provinceId.value);
@@ -67,9 +71,28 @@ export class JobListPage {
     const value = this.form.getRawValue();
     const queryParams: Record<string, string | null> = { page: page ? String(page) : null };
     Object.entries(value).forEach(([key, item]) => {
+      if (key === 'skillIds') {
+        const ids = item as number[];
+        queryParams[key] = ids.length ? ids.join(',') : null;
+        return;
+      }
+      if (key === 'skillMatch') {
+        queryParams[key] = value.skillIds.length && item === 'ALL' ? 'ALL' : null;
+        return;
+      }
       queryParams[key] = item === '' || item === false ? null : String(item);
     });
     void this.router.navigate(['/empleos'], { queryParams });
+  }
+
+  private skillIdsFrom(raw: string | null): number[] {
+    if (!raw) return [];
+    const ids: number[] = [];
+    for (const part of raw.split(',')) {
+      const id = Number(part.trim());
+      if (Number.isInteger(id) && id > 0 && !ids.includes(id)) ids.push(id);
+    }
+    return ids;
   }
 
   private loadMunicipalities(provinceId: string): void {
@@ -81,7 +104,17 @@ export class JobListPage {
     this.loading.set(true);
     this.error.set(null);
     let params = new HttpParams().set('page', page).set('size', 12);
-    Object.entries(this.form.getRawValue()).forEach(([key, value]) => {
+    const filters = this.form.getRawValue();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'skillIds') {
+        const ids = value as number[];
+        if (ids.length) params = params.set(key, ids.join(','));
+        return;
+      }
+      if (key === 'skillMatch') {
+        if (value === 'ALL' && filters.skillIds.length) params = params.set(key, 'ALL');
+        return;
+      }
       if (value !== '' && value !== false) params = params.set(key, String(value));
     });
     this.http.get<Envelope<Page<JobCard>>>('/api/jobs', { params }).subscribe({

@@ -11,6 +11,18 @@
     <label class="field"><span>{{ i18n.t('Categoría') }}</span>
       <select formControlName="categoryId"><option value="">{{ i18n.t('Todas') }}</option>@for (item of categories(); track item.id) { <option [value]="item.id">{{ item.name }}</option> }</select>
     </label>
+    <div class="field">
+      <span id="search-skills-label">{{ i18n.t('Habilidades requeridas') }}</span>
+      <app-skill-picker formControlName="skillIds" labelledBy="search-skills-label" />
+    </div>
+    @if (form.controls.skillIds.value.length) {
+      <label class="field"><span>{{ i18n.t('Coincidencia') }}</span>
+        <select formControlName="skillMatch">
+          <option value="ANY">{{ i18n.t('Cualquiera de estas habilidades') }}</option>
+          <option value="ALL">{{ i18n.t('Todas estas habilidades') }}</option>
+        </select>
+      </label>
+    }
     <label class="field"><span>{{ i18n.t('Contrato') }}</span>
       <select formControlName="contractType"><option value="">{{ i18n.t('Todos') }}</option><option value="INDEFINITE">{{ i18n.label('INDEFINITE') }}</option><option value="TEMPORARY">{{ i18n.label('TEMPORARY') }}</option><option value="PROJECT">{{ i18n.label('PROJECT') }}</option><option value="INTERNSHIP">{{ i18n.label('INTERNSHIP') }}</option><option value="FREELANCE">{{ i18n.label('FREELANCE') }}</option></select>
     </label>

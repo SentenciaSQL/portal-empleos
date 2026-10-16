@@ -1,0 +1,49 @@
+<div class="skill-picker">
+  @if (selected().length) {
+    <ul class="skill-chips">
+      @for (skill of selected(); track skill.id) {
+        <li class="chip">
+          <span>{{ skill.name }}</span>
+          <button type="button" (click)="remove(skill.id)" [attr.aria-label]="i18n.t('Quitar habilidad') + ': ' + skill.name">×</button>
+        </li>
+      }
+    </ul>
+  }
+  <div class="skill-row">
+    <input
+      [id]="inputId"
+      role="combobox"
+      [attr.aria-labelledby]="labelledBy()"
+      [attr.aria-controls]="listId"
+      [attr.aria-expanded]="open()"
+      [attr.aria-activedescendant]="activeDescendant()"
+      aria-autocomplete="list"
+      [attr.aria-describedby]="hintId"
+      autocomplete="off"
+      maxlength="80"
+      [placeholder]="i18n.t('Ej. Java, Spring Boot, Angular, SQL')"
+      [value]="query()"
+      [disabled]="busy()"
+      (input)="onInput($any($event.target).value)"
+      (keydown)="onKeydown($event)"
+      (blur)="touch()">
+    <button class="btn btn-navy" type="button" [disabled]="busy()" (click)="commit()">{{ i18n.t('Agregar') }}</button>
+  </div>
+  @if (open()) {
+    <ul class="skill-suggestions" role="listbox" [id]="listId">
+      @for (skill of suggestions(); track skill.id; let index = $index) {
+        <li role="option" [id]="optionId(skill)" [attr.aria-selected]="index === active()" [class.is-active]="index === active()">
+          <button type="button" (mousedown)="$event.preventDefault()" (click)="choose(skill)">{{ skill.name }}</button>
+        </li>
+      }
+    </ul>
+  }
+  <p class="rich-hint" [id]="hintId">
+    @if (allowCreate()) {
+      {{ i18n.t('Escribe un nombre y pulsa Enter o Agregar. Si la habilidad ya existe, se reutiliza sin importar las mayúsculas.') }}
+    } @else {
+      {{ i18n.t('Busca en el catálogo y selecciona una o varias habilidades.') }}
+    }
+  </p>
+  @if (error()) { <p class="field-error" role="alert">{{ i18n.live(error()) }}</p> }
+</div>

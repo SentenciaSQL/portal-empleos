@@ -1,5 +1,8 @@
 package com.empleord.catalog;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 
 public final class CatalogDtos {
@@ -20,6 +23,13 @@ public final class CatalogDtos {
     }
 
     public record SkillItem(Integer id, String name) {
+    }
+
+    public record SkillNameRequest(
+            @NotBlank(message = "Escribe el nombre de la habilidad.")
+            @Size(max = SkillNames.MAX_LENGTH, message = "El nombre de la habilidad no puede superar 80 caracteres.")
+            String name
+    ) {
     }
 
     public record PlanItem(

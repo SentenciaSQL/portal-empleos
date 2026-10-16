@@ -64,8 +64,12 @@ public class CatalogService {
     }
 
     @Transactional(readOnly = true)
-    public List<CatalogDtos.SkillItem> skills() {
-        return skills.findAllByOrderByNameAsc().stream().map(skill -> new CatalogDtos.SkillItem(skill.getId(), skill.getName())).toList();
+    public List<CatalogDtos.SkillItem> skills(String query) {
+        String key = SkillNames.key(SkillNames.collapse(query));
+        List<Skill> found = key == null
+                ? skills.findAllByOrderByNameAsc()
+                : skills.findTop8ByNormalizedNameContainingOrderByNameAsc(key);
+        return found.stream().map(skill -> new CatalogDtos.SkillItem(skill.getId(), skill.getName())).toList();
     }
 
     @Transactional(readOnly = true)

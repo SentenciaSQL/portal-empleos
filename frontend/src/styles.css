@@ -69,4 +69,13 @@
   .job-html ol, .rich-editor ol { list-style: decimal; }
   .job-html li, .rich-editor li { margin: .2rem 0; }
   .job-html a, .rich-editor a { color: var(--color-accent); text-decoration: underline; }
+  .skill-picker { display: grid; gap: .45rem; }
+  .skill-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+  .skill-chips .chip { gap: .35rem; }
+  .skill-chips button { display: inline-flex; align-items: center; justify-content: center; min-width: 1.4rem; min-height: 1.4rem; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 700; line-height: 1; cursor: pointer; }
+  .field .skill-row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+  .field .skill-row input { width: auto; flex: 1 1 12rem; min-width: 0; }
+  .skill-suggestions { margin: 0; padding: .3rem; list-style: none; border: 1px solid var(--color-line); background: white; border-radius: .7rem; max-height: 14rem; overflow: auto; }
+  .skill-suggestions button { width: 100%; text-align: left; border: 0; background: transparent; color: inherit; font: inherit; padding: .45rem .6rem; border-radius: .45rem; cursor: pointer; }
+  .skill-suggestions .is-active button, .skill-suggestions button:hover { background: #efe7dc; }
 }
