@@ -5,10 +5,11 @@ import { HttpClient } from '@angular/common/http';
 import { I18nService } from '../core/i18n.service';
 import { Country, Envelope, Named } from '../core/models';
 import { RichTextEditor, richTextRequired } from './rich-text-editor';
+import { SkillPicker } from './skill-picker';
 
 @Component({
   selector: 'app-job-form',
-  imports: [ReactiveFormsModule, RouterLink, RichTextEditor],
+  imports: [ReactiveFormsModule, RouterLink, RichTextEditor, SkillPicker],
   templateUrl: './job-form.html',
 })
 export class JobFormPage {
@@ -19,7 +20,6 @@ export class JobFormPage {
   readonly provinces = signal<Named[]>([]);
   readonly municipalities = signal<Named[]>([]);
   readonly countries = signal<Country[]>([]);
-  readonly skills = signal<Named[]>([]);
   readonly error = signal<string | null>(null);
   readonly i18n = inject(I18nService);
   readonly editing = signal(false);
@@ -35,7 +35,6 @@ export class JobFormPage {
     this.http.get<Envelope<Named[]>>('/api/catalog/categories').subscribe((res) => this.categories.set(res.data));
     this.http.get<Envelope<Named[]>>('/api/catalog/provinces').subscribe((res) => this.provinces.set(res.data));
     this.http.get<Envelope<Country[]>>('/api/catalog/countries').subscribe((res) => this.countries.set(res.data));
-    this.http.get<Envelope<Named[]>>('/api/catalog/skills').subscribe((res) => this.skills.set(res.data));
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'nueva') {
       this.editing.set(true);
@@ -60,12 +59,6 @@ export class JobFormPage {
   onProvince(): void {
     this.form.controls.municipalityId.setValue('');
     this.loadMunicipalities(this.form.controls.provinceId.value);
-  }
-
-  toggleSkill(id: number, checked: boolean): void {
-    const current = new Set(this.form.controls.skillIds.value);
-    if (checked) current.add(id); else current.delete(id);
-    this.form.controls.skillIds.setValue([...current]);
   }
 
   submit(): void {

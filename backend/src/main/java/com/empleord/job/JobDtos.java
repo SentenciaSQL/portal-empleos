@@ -44,7 +44,7 @@ public final class JobDtos {
             boolean salaryNegotiable,
             boolean acceptsNoExperience,
             Instant expiresAt,
-            List<Integer> skillIds,
+            @Size(max = 30, message = "Puedes asociar hasta 30 habilidades.") List<Integer> skillIds,
             boolean publish
     ) {
     }

@@ -12,8 +12,11 @@ import com.empleord.candidate.GeneratedResumeService;
 import com.empleord.candidate.JobAlertService;
 import com.empleord.candidate.ResumeService;
 import com.empleord.candidate.SavedJobService;
+import com.empleord.catalog.CatalogDtos;
+import com.empleord.catalog.SkillCommandService;
 import com.empleord.common.ApiResponse;
 import com.empleord.common.PageResponse;
+import com.empleord.company.CompanyAccess;
 import com.empleord.company.CompanyDtos;
 import com.empleord.company.CompanyService;
 import com.empleord.domain.entity.Notification;
@@ -156,10 +159,12 @@ class JobPublicController {
             @RequestParam(required = false) BigDecimal salaryMax,
             @RequestParam(required = false) Integer publishedWithinDays,
             @RequestParam(required = false) Boolean acceptsNoExperience,
+            @RequestParam(required = false) String skillIds,
+            @RequestParam(required = false) String skillMatch,
             @RequestParam(defaultValue = "recent") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size) {
-        return ApiResponse.ok(queries.search(q, provinceId, municipalityId, categoryId, contractType, workMode, workSchedule, experienceLevel, salaryMin, salaryMax, publishedWithinDays, acceptsNoExperience, sort, page, size));
+        return ApiResponse.ok(queries.search(q, provinceId, municipalityId, categoryId, contractType, workMode, workSchedule, experienceLevel, salaryMin, salaryMax, publishedWithinDays, acceptsNoExperience, skillIds, skillMatch, sort, page, size));
     }
 
     @GetMapping("/{slug}")
@@ -398,12 +403,23 @@ class CompanyManageController {
     private final JobCommandService jobs;
     private final ApplicationService applications;
     private final BillingService billing;
+    private final CompanyAccess access;
+    private final SkillCommandService skillCatalog;
 
-    CompanyManageController(CompanyService companies, JobCommandService jobs, ApplicationService applications, BillingService billing) {
+    CompanyManageController(CompanyService companies, JobCommandService jobs, ApplicationService applications, BillingService billing,
+                            CompanyAccess access, SkillCommandService skillCatalog) {
         this.companies = companies;
         this.jobs = jobs;
         this.applications = applications;
         this.billing = billing;
+        this.access = access;
+        this.skillCatalog = skillCatalog;
+    }
+
+    @PostMapping("/skills")
+    public ApiResponse<CatalogDtos.SkillItem> createSkill(@Valid @RequestBody CatalogDtos.SkillNameRequest request) {
+        access.requireMember();
+        return ApiResponse.ok(skillCatalog.create(request.name()));
     }
 
     @GetMapping("/subscription")
